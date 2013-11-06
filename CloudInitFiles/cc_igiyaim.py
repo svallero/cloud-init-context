@@ -171,10 +171,11 @@ def handle_part(data,ctype,filename,payload):
       if not repo:
         logger.error('repository for "files" not specified')  
         return
-      get_embedded(block, repo) 
+      for file in igiyaim_cfg['files']:
+        get_embedded(file, repo) 
     elif block != 'yaimhome' and block != 'repo':
-      #logger.info('reading embedded files..')
-      get_embedded(block) 
+      logger.info('reading embedded files...')
+      get_embedded(block, '') 
 
   logger.info('patching file "$yaimhome/node-info.d/wn_torque_noafs"...')
   try:
