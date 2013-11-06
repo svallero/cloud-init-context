@@ -1,0 +1,17 @@
+**************************************************************
+In this folder all the scripts you need to create 
+the user-data MIME for workernodes.
+**************************************************************
+
+In the folder 'sensitive_data' there are ssh-keys and 
+other configuration files with passwords.
+These informations should be embedded in the archieve.
+
+All other needed files can be found in 'CloudInitFiles'.
+This folder could go into a web server.
+ 
+User-data can be:
+  - embedded from local folder (should be the case for sensitive data)
+  - embedded from web server
+  - fetched from web server at boot (convenient to avoid large user-data files)  
+

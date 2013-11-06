@@ -1,0 +1,6 @@
+SW_DIR=$VO_SW_DIR/igi
+DEFAULT_SE=$SE_HOST
+STORAGE_DIR=$CLASSIC_STORAGE_DIR/igi
+VOMS_SERVERS="'vomss://vomsmania.cnaf.infn.it:8443/voms/igi.italiangrid.it?/igi.italiangrid.it'"
+VOMSES="'igi.italiangrid.it vomsmania.cnaf.infn.it 15003 /C=IT/O=INFN/OU=Host/L=CNAF/CN=vomsmania.cnaf.infn.it igi.italiangrid.it'"
+VOMS_CA_DN="'/C=IT/O=INFN/CN=INFN CA'"
