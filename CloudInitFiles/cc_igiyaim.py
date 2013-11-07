@@ -199,9 +199,9 @@ def handle_part(data,ctype,filename,payload):
   logger.info('Go yaim...')
   try :
     cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
-    DPopen(shlex.split(cmd), 'False')
+    DPopen(cmd, 'True')
     cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
-    DPopen(shlex.split(cmd), 'False')
+    DPopen(cmd, 'True')
   except:
     logger.error('failed to configure with yaim.') 
     return
