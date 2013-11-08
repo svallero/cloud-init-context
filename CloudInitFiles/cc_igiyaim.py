@@ -116,6 +116,10 @@ def get_embedded(embed_block, repo):
   elif embed_block.startswith('glite-'):
     dest = ''+yaimhome+'/production/siteinfo/services/'
   elif embed_block.startswith('vo-'):
+    tmp = embed_block[3:]
+    cmd = ('mv '+embed_block+' '+tmp+'')
+    DPopen(shlex.split(cmd), 'False')
+    embed_block=tmp
     dest = ''+yaimhome+'/production/siteinfo/vo.d/'
   logger.info('moving file into place...')
   try:
@@ -123,7 +127,7 @@ def get_embedded(embed_block, repo):
     DPopen(shlex.split(cmd), 'False')
   except:
     logger.error('could not move file into place!')
-
+    return
 ########################
 
 def handle_part(data,ctype,filename,payload):
@@ -196,7 +200,7 @@ def handle_part(data,ctype,filename,payload):
     logger.error('failed to disable firewall and selinux!') 
     return
 
-  logger.info('Go yaim...')
+  logger.info('go yaim...')
   try :
     cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
     DPopen(cmd, 'True')

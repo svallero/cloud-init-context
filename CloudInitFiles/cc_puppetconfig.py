@@ -122,7 +122,10 @@ def handle_part(data,ctype,filename,payload):
   else:
     logger.error('options not specified!')
     return
- 
+
+  # for sandbox test
+  #return
+   
   try:
     cmd = ('puppet agent '+string+'')
     DPopen(cmd, 'True')

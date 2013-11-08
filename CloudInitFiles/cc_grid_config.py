@@ -46,7 +46,9 @@ def ConfigAddNode(ce, NCores):
   get_embedded(filename, val, '/tmp') 
   cmd = ('chmod 0400 /tmp/'+filename+'')
   DPopen(cmd, 'True')
-
+  
+  # for sandbox tests
+  return
   logger.info('invoking remote addition by performing ssh...')    
   try:
     cmd = ('echo '+Ncores+' | ssh qmanager@'+ce+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')
