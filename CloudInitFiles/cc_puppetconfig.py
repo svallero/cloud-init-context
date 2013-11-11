@@ -106,7 +106,7 @@ def handle_part(data,ctype,filename,payload):
     logger.error('SE not specified!')
     return
   try:
-    cmd = ('ssh puppetremote@'+se+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')  
+    cmd = ('ssh -t puppetremote@'+se+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')  
     DPopen(cmd, 'True')
     cmd = ('rm -f /tmp/'+filename+'')
     DPopen(cmd, 'True')

@@ -201,13 +201,14 @@ def handle_part(data,ctype,filename,payload):
     return
 
   logger.info('go yaim...')
-  try :
-    cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
-    DPopen(cmd, 'True')
-    cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
-    DPopen(cmd, 'True')
-  except:
-    logger.error('failed to configure with yaim.') 
-    return
+  #try :
+  cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
+  DPopen(cmd, 'True')
+  #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
+  cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
+  DPopen(cmd, 'True')
+  #except:
+    #logger.error('failed to configure with yaim.') 
+    #return
 
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

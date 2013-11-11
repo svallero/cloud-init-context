@@ -60,7 +60,7 @@ def DPopen(command, shell):
     proc = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
   else:
     proc = Popen(command, stdout=PIPE, stderr=PIPE)
-    
+  
   out,err= proc.communicate()
       
   for outline in out.splitlines():

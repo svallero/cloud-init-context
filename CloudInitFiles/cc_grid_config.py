@@ -23,7 +23,6 @@ import urllib2
 
 # Define global variables
 grid_cfg = 0
-
 # Define logfile
 logname = '/var/log/cloud-init-grid_config.log'
 # Import script with definition of logger and some useful function
@@ -43,9 +42,13 @@ def ConfigAddNode(ce, NCores):
   logger.info('fetching createhost-rsa...')
   filename = 'createhost-rsa'
   val = grid_cfg[filename]
-  get_embedded(filename, val, '/tmp') 
-  cmd = ('chmod 0400 /tmp/'+filename+'')
-  DPopen(cmd, 'True')
+  try:
+    get_embedded(filename, val, '/tmp') 
+    cmd = ('chmod 0400 /tmp/'+filename+'')
+    DPopen(cmd, 'True')
+  except:
+    logger.error('could not retrieve createhost-rsa file!')
+    return 
   
   # for sandbox tests
   return
@@ -63,12 +66,14 @@ def ConfigAddNode(ce, NCores):
 ########################
 
 def ConfigMomLoads(NCores):
-  cmd = ('echo  "'+NCores+' + 1.0" | bc')
-  IdealLoad = DPopen(cmd).read()
+  cmd = ('echo  "'+str(NCores)+' + 1.0" | bc')
+  proc=Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+  IdealLoad,err=proc.communicate() 
   IdealLoad = IdealLoad.strip() 
   
-  cmd = ('echo  "'+NCores+' * 1.5" | bc') 
-  MaxLoad = DPopen(cmd).read() 
+  cmd = ('echo  "'+str(NCores)+' * 1.5" | bc') 
+  proc=Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+  MaxLoad,err=proc.communicate() 
   MaxLoad = MaxLoad.strip() 
 
   MomConf = '/etc/torque/mom/config'
@@ -148,6 +153,7 @@ def handle_part(data,ctype,filename,payload):
     logger.error('worker-node will not be configured for GRID!!!')
     return
   else:
+    global grid_cfg
     grid_cfg = cfg['grid_config']
     if 'ce' in grid_cfg:
       ce  = grid_cfg['ce']
@@ -156,19 +162,21 @@ def handle_part(data,ctype,filename,payload):
       return
 
     # Restart "fetch-crl service"
-    try:
-      logger.info('re-starting "fetch-crl service"')
-      cmd = ('service fech-crl restart')
-      DPopen(cmd, 'True')
-    except:
-      logger.error('error: could not restart service "fetch-crl"!') 
-      return 
+    # (seems to fail also with old context method)
+    #try:
+    #  logger.info('re-starting "fetch-crl service"')
+    #  cmd = ('service fech-crl restart')
+    #  DPopen(cmd, 'True')
+    #except:
+    #  logger.error('error: could not restart service "fetch-crl"!') 
+    #  return 
     
     # Get the number of cores
     logger.info('getting number of cores...')
     try:
       cmd = ('grep -c bogomips /proc/cpuinfo')
-      NCores = DPopen(cmd).read()
+      proc=Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+      NCores,err=proc.communicate() 
       NCores = NCores.strip()
     except:
       logger.error('could not determine the number of cores!')
@@ -184,7 +192,7 @@ def handle_part(data,ctype,filename,payload):
 
     # Configure Mom loads
     try:
-      legger.info('configuring pbs_mom loads...')
+      logger.info('configuring pbs_mom loads...')
       ConfigMomLoads(NCores)
     except:
       logger.error('error: could not configure pbs_mom loads!')
