@@ -18,10 +18,13 @@
 #   - add 'IncludeModules.txt:x-include-url' at the beginning of List.txt  #
 ############################################################################
 
+#boothook:
+#   - 'http://srm-dom0.to.infn.it/CloudInitFiles/preconfig.py'
+
+
 #parthandlers:
-#   repo: 'http://srm-dom0.to.infn.it/test' 
+#   repo: 'http://srm-dom0.to.infn.it/CloudInitFiles' 
 #   header: 'header.py'
-#   summary: 'summary_log.py'
 #   modules: 
 #     - 'cc_localfs.py'
 #     - 'cc_cvmfs.py'
@@ -54,7 +57,7 @@ localfs:
 
 cvmfs:
   install: true
-  version: 2.1.14
+  version: 2.1.15
   local:
     repositories: alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch 
     http-proxy: http://t2-squid-01.to.infn.it:3128
@@ -114,8 +117,8 @@ igiinstall:
 
 igiyaim:
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://one-master/CloudInitFiles'
-# tarfile: 'Grid-Prod.tar.gz'
+  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles'
+  #tarfile: 'Grid-Prod.tar.gz'
   files:
     - 'ig-groups.conf'
     - 'ig-users.conf'
@@ -142,7 +145,7 @@ knownhosts:
 # PUPPET ###################################################################
 # il modulo sembra funzionare, ma si pianta in                             #
 # 'did not receive certificate'.                                           #
-# The set of options below mean:                                           # 
+# The set of options below means:                                          # 
 # apply Puppet configuration synchronously, and exit on failure.           #
 # Note that the configuration is also applied when first starting the      # 
 # Puppet agent in background, but we want it to happen synchronously and   # 
@@ -153,7 +156,7 @@ puppetconfig:
 # repo: 'http://srm-dom0.to.infn.it/test/production'
   embedfiles: 
     - 'sensitivedata/puppetremote-rsa'
-  se: t2-se-00.to.infn.it # perche'???
+  se: t2-se-00.to.infn.it 
   options:
     - 'onetime'
     - 'verbose'
@@ -195,8 +198,8 @@ grid_config:
   ce: 't2-ce-01.to.infn.it'
 
 # SUMMARY ##################################################################
-# add someadditional script to be run at the end.                          # 
-# For instance the scrit to produce a summary logfile from the single      #
+# add some additional script to be run at the end.                         # 
+# For instance the script to produce a summary logfile from the single     #
 # part-handlers logs.                                                      #
 # Comment-out if already included as x-include-url.                        #
 ############################################################################

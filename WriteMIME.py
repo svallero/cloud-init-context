@@ -26,7 +26,7 @@ except ImportError:
 
 # Remember to add below all the standard modules you intend to use 
 # (better to put all...) TODO
-standard_modules = ['packages', 'runcmd', 'yum_repos', 'bootcmd', 'preserve_hostname', 'hostname']
+standard_modules = ['packages', 'runcmd', 'yum_repos', 'bootcmd', 'preserve_hostname', 'hostname', 'yum_repos', 'write_files']
 
 #########################################
 class OrderedDictYAMLLoader(yaml.Loader):
@@ -152,10 +152,12 @@ for line in fileinput.input():
             # afterburner should be scripts (shell, python etc...)
             # If starting with 'http' they are fetched from server
             # else from local path.
-            if i == 'afterburners':
+            if i == 'afterburners' or i == 'boothook':
                burners_cfg = items[i] 
                for script in burners_cfg: 
                  format_type='x-shellscript'  
+                 if i == 'boothook':
+                   format_type='cloud-boothook'  
                  head, tail = ntpath.split(script)
                  filename=tail 
                  if script.startswith('http'): 
