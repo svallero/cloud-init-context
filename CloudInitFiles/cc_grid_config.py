@@ -50,11 +50,12 @@ def ConfigAddNode(ce, NCores):
     logger.error('could not retrieve createhost-rsa file!')
     return 
   
-  # for sandbox tests
-  return
+  # 'return' for sandbox tests:
+  #return
+
   logger.info('invoking remote addition by performing ssh...')    
   try:
-    cmd = ('echo '+Ncores+' | ssh qmanager@'+ce+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')
+    cmd = ('echo '+str(NCores)+' | ssh qmanager@'+ce+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')
     DPopen(cmd, 'True')
   except: 
     logger.error('error: could not perform remote addition of node!')
