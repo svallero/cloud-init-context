@@ -23,7 +23,7 @@ if 'proxy' not in file:
   logger.info('adding proxy to yum configuration...')
   try:
     # write yum.conf
-    cmd = ('echo "proxy: '+proxy+'" >> '+filename+'')
+    cmd = ('echo "proxy='+proxy+'" >> '+filename+'')
     DPopen(cmd,'True')
     # global setting
     cmd = ('export https_proxy='+proxy+'')
