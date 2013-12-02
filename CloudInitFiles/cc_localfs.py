@@ -148,6 +148,13 @@ def handle_part(data,ctype,filename,payload):
        logger.error('yum installation of lvm2 has failed!')
        return
 
+    try:
+       cmd = ('yum -y install  xfsprogs')
+       DPopen(cmd,'True') 
+    except:
+       logger.error('yum installation of xfsprogs has failed!')
+       return
+
     logger.info('creating physical volume...')
     try:
        cmd = ('pvcreate '+Dev+'')
