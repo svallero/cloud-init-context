@@ -36,12 +36,12 @@ def list_types():
 
 ########################
 
-def install_cvmfs(version):
+def install_cvmfs(version, rhel):
   logger.info('entering CVMFS installation...')  
   arch = platform.machine()       # Platform info
-
   # cvmfs and cvmfs-keys package url
-  cvmfs_rpm_url = 'https://ecsft.cern.ch/dist/cvmfs/cvmfs-'+version+'/cvmfs-'+version+'-1.el6.'+arch+'.rpm'
+  cvmfs_rpm_url = 'https://ecsft.cern.ch/dist/cvmfs/cvmfs-'+version+'/cvmfs-'+version+'-1.el'+str(rhel)+'.'+arch+'.rpm'
+  logger.info('Pakcage ulr: '+cvmfs_rpm_url+'') 
   cvmfs_keys_rpm_url = 'https://ecsft.cern.ch/dist/cvmfs/cvmfs-keys/cvmfs-keys-1.4-1.noarch.rpm'
   # Downloading cvmfs and cvmfs-keys.rpm file to /home path
   try:
@@ -185,7 +185,11 @@ def handle_part(data,ctype,filename,payload):
         version = cvmfs_cfg['version']
       else:
  		version = '2.1.14'       
-      install_cvmfs(version)	    
+      if 'el' in cvmfs_cfg:
+        el = cvmfs_cfg['el']
+      else:
+ 		el = 6       
+      install_cvmfs(version, el)	    
 
   LocalFile = '/etc/cvmfs/default.local'
   DomainFile = '/etc/cvmfs/domain.d/cern.ch.local'
