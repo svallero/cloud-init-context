@@ -25,6 +25,7 @@ import urllib2
 grid_cfg = 0
 # Define logfile
 logname = '/var/log/cloud-init-grid_config.log'
+#logname = '/tmp/cloud-init-grid_config.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
@@ -156,74 +157,136 @@ def handle_part(data,ctype,filename,payload):
   else:
     global grid_cfg
     grid_cfg = cfg['grid_config']
-    if 'ce' in grid_cfg:
-      ce  = grid_cfg['ce']
+
+    # Add node if 'createhost-rsa' is specified
+    if 'createhost-rsa' in grid_cfg: 
+       if 'ce' in grid_cfg:
+          ce  = grid_cfg['ce']
+       else:
+      	  logger.error('error: computing element (ce) not defined!')
+          return
+
+       # Restart "fetch-crl service"
+       # (seems to fail also with old context method)
+       #try:
+       #  logger.info('re-starting "fetch-crl service"')
+       #  cmd = ('service fech-crl restart')
+       #  DPopen(cmd, 'True')
+       #except:
+       #  logger.error('error: could not restart service "fetch-crl"!') 
+       #  return 
+       
+       # Get the number of cores
+       logger.info('getting number of cores...')
+       try:
+         cmd = ('grep -c bogomips /proc/cpuinfo')
+         proc=Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+         NCores,err=proc.communicate() 
+         NCores = NCores.strip()
+       except:
+         logger.error('could not determine the number of cores!')
+         return
+
+       # Add node to pbs queue
+       try:
+         logger.info('adding node to LRMS...')
+         ConfigAddNode(ce, NCores)
+       except:
+         logger.error('error: could not add node to local pbs system!')
+         return
+
+       # Configure Mom loads
+       try:
+         logger.info('configuring pbs_mom loads...')
+         ConfigMomLoads(NCores)
+       except:
+         logger.error('error: could not configure pbs_mom loads!')
+         return
     else:
-      logger.error('error: computing element (ce) not defined!')
-      return
+       logger.info('createhost-rsa not specified: I will not add VM to pbs queue!')
 
-    # Restart "fetch-crl service"
-    # (seems to fail also with old context method)
-    #try:
-    #  logger.info('re-starting "fetch-crl service"')
-    #  cmd = ('service fech-crl restart')
-    #  DPopen(cmd, 'True')
-    #except:
-    #  logger.error('error: could not restart service "fetch-crl"!') 
-    #  return 
+    # Configure Munge on client (if 'munge.key' is specified)
+    if 'munge.key' in grid_cfg:
+       try:
+         logger.info('configuring Munge...')
+         ConfigMunge()
+       except:
+         logger.error('could not configure Munge!')
+         return     
+       # Configure server-name (if CE is specified)
+       if 'ce' in grid_cfg:
+         logger.info('setting pbs server name (ce)...')
+         try:
+           cmd = ('echo "'+ce+'" > /var/lib/torque/server_name')
+           DPopen(cmd, 'True') 
+           cmd = ('sed -i -e \'s/localhost/'+ce+'/g\' /etc/torque/mom/config')
+           DPopen(cmd, 'True') 
+         except:
+           logger.error('could not set pbs server name!')
+           return
     
-    # Get the number of cores
-    logger.info('getting number of cores...')
-    try:
-      cmd = ('grep -c bogomips /proc/cpuinfo')
-      proc=Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
-      NCores,err=proc.communicate() 
-      NCores = NCores.strip()
-    except:
-      logger.error('could not determine the number of cores!')
-      return
-
-    # Add node to pbs queue
-    try:
-      logger.info('adding node to LRMS...')
-      ConfigAddNode(ce, NCores)
-    except:
-      logger.error('error: could not add node to local pbs system!')
-      return
-
-    # Configure Mom loads
-    try:
-      logger.info('configuring pbs_mom loads...')
-      ConfigMomLoads(NCores)
-    except:
-      logger.error('error: could not configure pbs_mom loads!')
-      return
-
-    # Configure Munge
-    try:
-      logger.info('configuring Munge...')
-      ConfigMunge()
-    except:
-      logger.error('could not configure Munge!')
-      return     
+         logger.info('restarting pbs_mom...')
+         try:
+           cmd = ('/sbin/service pbs_mom restart')
+           DPopen(cmd, 'True') 
+         except:
+           logger.error('could not restart pbs_mom!')
+           return
+    else:
+       logger.info('munge.key is not specified: I will not configure pbs client!')
  
-    # Configure server-name
-    logger.info('setting pbs server name (ce)...')
+  # Install munge on CE
+  installmunge = False
+  if 'install_munge' in grid_cfg:
+    installmunge = grid_cfg['install_munge']
+  
+  if installmunge == True:
+    logger.info('Installing munge server...')
     try:
-      cmd = ('echo "'+ce+'" > /var/lib/torque/server_name')
-      DPopen(cmd, 'True') 
-      cmd = ('sed -i -e \'s/localhost/'+ce+'/g\' /etc/torque/mom/config')
-      DPopen(cmd, 'True') 
+      cmd = ('yum -y --enablerepo=epel install munge munge-libs')
+      DPopen(shlex.split(cmd), 'False') 
     except:
-      logger.error('could not set pbs server name!')
+      logger.error('could not install software with yum!')
+      return  
+
+    logger.info('Generating munge key...')
+    try:
+      cmd = ('/usr/sbin/create-munge-key')
+      DPopen(shlex.split(cmd), 'False') 
+    except:
+      logger.error('could not generate munge key!')
       return
-    
-    logger.info('restarting pbs_mom...')
+
+    logger.info('Starting munge...')
     try:
-      cmd = ('/sbin/service pbs_mom restart')
-      DPopen(cmd, 'True') 
+      cmd = ('/sbin/service munge start')
+      DPopen(shlex.split(cmd), 'False') 
     except:
-      logger.error('could not restart pbs_mom!')
+      logger.error('could not start munge!')
       return
  
+    logger.info('Configure to start munge at boot...')
+    try:
+      cmd = ('/sbin/chkconfig munge on')
+      DPopen(shlex.split(cmd), 'False') 
+    except:
+      logger.error('failed to run "/sbin/chkconfig munge on"!')
+      return
+    
+    logger.info('Stop iptables...')
+    try:
+      cmd = ('/sbin/service iptables stop')
+      DPopen(shlex.split(cmd), 'False') 
+    except:
+      logger.error('could not stop iptables!')
+      return
+ 
+    logger.info('Configure to stop iptables at boot...')
+    try:
+      cmd = ('/sbin/chkconfig iptables off')
+      DPopen(shlex.split(cmd), 'False') 
+    except:
+      logger.error('failed to run "/sbin/chkconfig iptables off"!')
+      return
+    
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

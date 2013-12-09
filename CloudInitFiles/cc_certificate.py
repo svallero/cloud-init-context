@@ -25,10 +25,10 @@ import urllib2
 import ntpath
 
 # Define global variables
-knownhosts_cfg = 0
+certificate_cfg = 0
 
 # Define logfile
-logname = '/var/log/cloud-init-knownhosts.log'
+logname = '/var/log/cloud-init-certificate.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
@@ -38,7 +38,7 @@ exec (response.read())
 
 def list_types():
   # return a list of mime-types that are handled by this module
-  return(["text/knownhosts-config"])
+  return(["text/certificate-config"])
 
 #######################
 
@@ -62,19 +62,29 @@ def handle_part(data,ctype,filename,payload):
   # Payload should be interpreted as yaml since configuration is given in cloud-config format
   cfg = util.load_yaml(payload)
   
-  # If there isn't a knownhosts reference in the configuration don't do anything
-  if 'knownhosts' not in cfg:
-    logger.error('knownhosts configuration was not found!')
+  # If there isn't a certificate reference in the configuration don't do anything
+  if 'certificate' not in cfg:
+    logger.error('certificate configuration was not found!')
     return 
  
-  logger.info('ready to configure ssh known hosts')
-  knownhosts_cfg = cfg['knownhosts'] 
+  logger.info('ready to configure host certificate')
+  certificate_cfg = cfg['certificate'] 
 
-  logger.info('copying the "ssh_known_hosts" file...')
+  logger.info('copying the "certificate" files...')
   
-  for block in knownhosts_cfg:
+  for block in certificate_cfg:
     if block != 'repo':
-      val = knownhosts_cfg[block]
-      get_embedded(block, val, '/etc/ssh/')
-         
+      val = certificate_cfg[block]
+      get_embedded(block, val, '/etc/grid-security')
+      logger.info('changing permissions...')
+      if ('cert' in block):
+         perm = 644
+      elif ('key' in block):
+         perm = 400
+      try:
+         cmd = ('chmod '+str(perm)+' /etc/grid-security/'+block+'')
+         DPopen(cmd, 'True')
+      except:
+         logger.error('failed to change file permissions!')       
+
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

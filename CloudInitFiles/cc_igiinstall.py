@@ -106,11 +106,11 @@ def handle_part(data,ctype,filename,payload):
     packages = igiinstall_cfg['packages']
     for pack in packages:
       try:
-        if 'igi-wn' in pack:
-          cmd = ('yum -y --enablerepo=epel install '+pack+'')
-          DPopen(shlex.split(cmd), 'False')
-        else:
-          cmd = ('yum -y install '+pack+'')
+        #if 'igi-wn' in pack:
+        cmd = ('yum -y --enablerepo=epel install '+pack+'')
+        DPopen(shlex.split(cmd), 'False')
+        #else:
+        #  cmd = ('yum -y install '+pack+'')
            
       except:
         logger.error('could not install package '+pack+'')
