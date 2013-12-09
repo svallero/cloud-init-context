@@ -3,6 +3,7 @@
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_localfs.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_cvmfs.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_sharedsw.py
+http:srm-dom0.to.infn.it/CloudInitFiles/cc_certificate.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_igiinstall.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_igiyaim.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_knownhosts.py

@@ -1,2 +1,2 @@
 IncludeModules.txt:x-include-url
-ConfigureT2.ccfg:multiple-config
+ConfigureCE.ccfg:multiple-config
