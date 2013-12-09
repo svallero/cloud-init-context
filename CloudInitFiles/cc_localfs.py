@@ -26,6 +26,7 @@ Parts = ''
 
 # Define logfile
 logname = '/var/log/cloud-init-localfs.log'
+#logname = '/tmp/cloud-init-localfs.log'
 # Import script with definition of logger and some useful function 
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
@@ -48,7 +49,7 @@ def list_of_partitions(params):
   # (one could implement more flexibility in the future)
 
   # define defaults
-  cvmfs_percent = str(17)
+  cvmfs_percent = str(0)
   cvmfs_mount = '/var/lib/cvmfs'
   home_percent = str(58)
   home_mount = '/home'
@@ -177,7 +178,9 @@ def handle_part(data,ctype,filename,payload):
     for p in Parts:
        Lv = p[0] 
        Size = p[1] 
-       Mnt = p[2] 
+       Mnt = p[2]
+       if (Size == '0%VG'):
+         continue 
        logger.info('creating logical volume '+Lv+'...') 
        try:
          cmd = ('lvcreate -l '+Size+' -n '+Lv+' '+Vg+'')
