@@ -106,8 +106,9 @@ def reindent(s, numSpaces):
 
 ###########################################
 def get_file_content_repo(filename, reponame):
-    os.system('wget -O /tmp/'+filename+' '+reponame+'/'+filename+'') 
-    f = open('/tmp/'+filename+'', 'r')  
+    file = os.path.basename(filename) 
+    os.system('wget -O /tmp/'+file+' '+reponame+'/'+filename+'') 
+    f = open('/tmp/'+file+'', 'r')  
     value = f.read()
     return value
 
@@ -184,27 +185,40 @@ for line in fileinput.input():
                         default_flow_style=False)
                 if i not in standard_modules:
                   format_type = (''+i+'-config')
+                  if 'repo' in contents:
+                    repo = single['repo']
+                    #print repo
+                  #if 'files' not in contents:
+                    #del single['repo'] 
                   if 'embedfiles' in contents:
-                    files = single['embedfiles']
-                    if 'repo' in contents:
-                      repo = single['repo']
-                      if 'files' not in contents:
-                        del single['repo'] 
-                    for file in files:
-                      if file.startswith('+'):
-                        # remove the first character
-                        file = file[1:]
-                        if repo:
-                          filecontent = get_file_content_repo(file, repo)  
-                        else:  
-                          print ('ERROR: repo is not specified in '+i+' block!') 
-                          exit
-                      else:   
-                        filecontent = get_file_content(file) 
-                        head, tail = ntpath.split(file) 
-                        file=tail
-                      single[file]=filecontent.strip()
-                    del single['embedfiles'] 
+                    for part in single:
+                      #print part
+                      #matches = [x for x in part if 'embedfiles' in x]
+                      #files = part[str(matches[0])]
+                      #print matches[0]
+                      if 'embedfiles' in part:
+                         files = single[part]
+                         for file in files:
+                           if file.startswith('+'):
+                             # remove the first character
+                             file = file[1:]
+                             if repo:
+                               #print file
+                               filecontent = get_file_content_repo(file, repo)  
+                             else:  
+                               print ('ERROR: repo is not specified in '+i+' block!') 
+                               exit
+                           else:   
+                             filecontent = get_file_content(file) 
+                             head, tail = ntpath.split(file)
+                             if part == 'embedfiles': 
+                               file=tail
+                             else:
+                               tmp1,tmp2 = part.split('_')
+                               file = ''+tmp1+'/'+tail+''
+                           single[file]=filecontent.strip()
+                         #del single['embedfiles'] 
+                         del single[part] 
                 
                 else:
                   format_type = ('cloud-config')
@@ -239,12 +253,11 @@ output = b64encode(combined_message.as_string())
 # Write output file
 ofilename = 'userdata.txt.gz'
 ofile = open(ofilename,"wb")
-#ofile.write(output)
-#ofile.write(combined_message.as_string())
+
+
 # Gzipped
 gfile = gzip.GzipFile(fileobj=ofile, filename = (ofilename))
 gfile.write(combined_message.as_string())
-#gfile.write(output) # base64 encoded
 gfile.close()
 ofile.close()
 

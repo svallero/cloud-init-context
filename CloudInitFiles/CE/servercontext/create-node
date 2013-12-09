@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#
+# create-node -- by Dario Berzano <dario.berzano@cern.ch>
+#
+# Script meant to be run on the CE by an unprivileged user to add the invoking
+# node to the Torque queues.
+#
+# The unprivileged user should have the right to create and delete nodes:
+#
+#   qmgr -c 'set server managers += unpriv_user@ce.host.com'
+#
+# The number of cores (used for 'np') is passed from the invoking machine via
+# stdin.
+#
+# This script is meant to be the only allowed command of a SSH public key of the
+# unprivileged user.
+#
+# In addition the same user must have the right to run ssh-hosts-keys from the
+# same directory of this very script as root via sudo, so edit sudoers properly,
+# for instance:
+#
+#   qmanager  ALL = NOPASSWD: /full/path/to/ssh-hosts-keys
+#
+
+#
+# Functions
+#
+
+# Main function
+function Main() {
+
+  # Immediately read the number of cores from stdin
+  read NCores
+
+  # Is it a valid number?
+  let NCores+=0
+  if [ $NCores == 0 ]; then
+    echo 'Not a valid number of cores'
+    exit 1
+  fi
+
+  # Get hostname from SSH environment
+  if [ "$SSH_CLIENT" == '' ]; then
+    echo 'No SSH_CLIENT in environment!'
+    exit 1
+  fi
+
+  # Get caller's IP address from the SSH variable
+  export Ip=$(echo $SSH_CLIENT | awk '{ print $1 }')
+
+  # Get hostname from the IP address
+  export Host=$(getent hosts $Ip 2> /dev/null | awk '{ print $2 }')
+
+  # Check if we really have the host name
+  if [ "$Host" == '' ]; then
+    echo 'No hostname can be retrieved!'
+    exit 1
+  fi
+
+  # Remove node from queues, if exists; ignore error value
+  qmgr -c "delete node $Host"
+
+  # Add node to the queues
+  qmgr -c \
+    "create node $Host state=offline,np=$NCores,properties=lcgpro,ntype=cluster"
+
+  # Invoke script to manage keys (it should feature a lock/wait mechanism)
+  local ScriptDir=`dirname $0`
+  ScriptDir=`cd "$ScriptDir" ; pwd`
+  sudo "$ScriptDir/ssh-hosts-keys" delete-update $Host
+  
+  exit 0
+
+}
+
+#
+# Entry point
+#
+
+Main "$@"
