@@ -1,1 +1,15 @@
-Bla bla
+###################
+# vo.cta.in2p3.fr #
+###################
+SW_DIR=$VO_SW_DIR/cta
+DEFAULT_SE=$SE_HOST
+STORAGE_DIR=$CLASSIC_STORAGE_DIR/cta
+VOMS_SERVERS="\
+'vomss://cclcgvomsli01.in2p3.fr:8443/voms/vo.cta.in2p3.fr?/vo.cta.in2p3.fr' \
+"
+VOMSES="\
+'vo.cta.in2p3.fr cclcgvomsli01.in2p3.fr 15008 /O=GRID-FR/C=FR/O=CNRS/OU=CC-IN2P3/CN=cclcgvomsli01.in2p3.fr vo.cta.in2p3.fr' \
+"
+VOMS_CA_DN="\
+'/C=FR/O=CNRS/CN=GRID2-FR' \
+"

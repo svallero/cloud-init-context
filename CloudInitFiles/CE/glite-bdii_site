@@ -1,1 +1,61 @@
-Bla bla
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004. 
+# See http://www.eu-egee.org/partners/ for details on the copyright 
+# holders.  
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); 
+# you may not use this file except in compliance with the License. 
+# You may obtain a copy of the License at 
+#
+#    http://www.apache.org/licenses/LICENSE-2.0 
+#
+# Unless required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS 
+# OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and 
+# limitations under the License.
+##############################################################################
+#
+# NAME :        glite_bdii-site
+#
+# DESCRIPTION : This file contains the variable list to configure a site BDII
+#
+# AUTHORS :     Laurence.Field@cern.ch, steve.traylen@cern.ch
+#
+# NOTES :       -
+#
+# YAIM MODULE:  glite-yaim-bdii
+#                 
+##############################################################################
+
+# Site-wide settings
+
+SITE_NAME="A name for the site"
+SITE_DESC="A long format name for your site"
+SITE_SUPPORT_EMAIL="Contact email for support, possibly a helpdesk system"
+SITE_SECURITY_EMAIL="Contact email for security"
+SITE_LOC="City, Country"
+SITE_WEB="http://www.my-site.org"
+
+#############################################################################
+#The SITE_OTHER_* variables are free form after the SITE_OTHER_ prefix.
+# Please see 
+# http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_my_site_information
+# for more details.
+# Note for multiple values a '|' is used as a delimiter
+#
+# For example:
+SITE_OTHER_GRID="WLCG|EGEE"
+# Other SITE_OTHER variables:
+# SITE_OTHER_EGEE_ROC="UK/I"
+# SITE_OTHER_WLCG_TIER="2"
+# SITE_OTHER_WLCG_PARENT="RAL-LCG2"
+
+# List of hosts where there are services that want to publish into the BDII
+BDII_REGIONS="host-id-1 [host-id-2 [...]]"    
+
+# The following example is valid for hosts using BDII. 
+# If your host is using MDS instead (all 3.0 nodes)
+# change the port to 2135 and mds-vo-name=local
+BDII_host-id-1_URL="ldap://host-id-1-hostname:2170/mds-vo-name=resource,o=grid"
