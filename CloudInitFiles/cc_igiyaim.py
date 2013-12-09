@@ -28,6 +28,7 @@ igiyaim_cfg = 0
 
 # Define logfile
 logname = '/var/log/cloud-init-igiyaim.log'
+#logname = '/tmp/cloud-init-igiyaim.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
@@ -152,7 +153,7 @@ def handle_part(data,ctype,filename,payload):
   
   # If there isn't a igiyaim reference in the configuration don't do anything
   if 'igiyaim' not in cfg:
-    logger.error('sharedsw configuration was not found!')
+    logger.error('igiyaim configuration was not found!')
     return 
  
   logger.info('ready to setup Igi-Yaim')
@@ -177,38 +178,63 @@ def handle_part(data,ctype,filename,payload):
         return
       for file in igiyaim_cfg['files']:
         get_embedded(file, repo) 
-    elif block != 'yaimhome' and block != 'repo':
+    elif block != 'yaimhome' and block != 'repo' and block != 'type':
       logger.info('reading embedded files...')
       get_embedded(block, '') 
 
-  logger.info('patching file "$yaimhome/node-info.d/wn_torque_noafs"...')
-  try:
-    cmd = ('grep -v "config_ntp" '+yaimhome+'/node-info.d/wn_torque_noafs > '+yaimhome+'/node-info.d/wn_torque_noafs.0')
-    DPopen(cmd, 'True')
-    cmd = ('mv '+yaimhome+'/node-info.d/wn_torque_noafs.0 '+yaimhome+'/node-info.d/wn_torque_noafs') 
-    DPopen(cmd, 'True')
-  except:
-    logger.error('could not patch file "$yaimhome/node-info.d/wn_torque_noafs"')
-    return
+  type='wn'
+  if 'type' in igiyaim_cfg:
+     type = igiyaim_cfg['type']
+  # for workernodes
+  if type == 'wn':
+     logger.info('configuring WN...')
+     logger.info('patching file "$yaimhome/node-info.d/wn_torque_noafs"...')
+     try:
+       cmd = ('grep -v "config_ntp" '+yaimhome+'/node-info.d/wn_torque_noafs > '+yaimhome+'/node-info.d/wn_torque_noafs.0')
+       DPopen(cmd, 'True')
+       cmd = ('mv '+yaimhome+'/node-info.d/wn_torque_noafs.0 '+yaimhome+'/node-info.d/wn_torque_noafs') 
+       DPopen(cmd, 'True')
+     except:
+       logger.error('could not patch file "$yaimhome/node-info.d/wn_torque_noafs"')
+       return
 
-  try:
-    cmd = ('/sbin/service iptables stop')
-    DPopen(shlex.split(cmd), 'False')
-    cmd = ('/usr/sbin/setenforce 0')
-    DPopen(shlex.split(cmd), 'False')
-  except:
-    logger.error('failed to disable firewall and selinux!') 
-    return
+     try:
+       cmd = ('/sbin/service iptables stop')
+       DPopen(shlex.split(cmd), 'False')
+       cmd = ('/usr/sbin/setenforce 0')
+       DPopen(shlex.split(cmd), 'False')
+     except:
+       logger.error('failed to disable firewall and selinux!') 
+       return
 
-  logger.info('go yaim...')
-  #try :
-  cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
-  DPopen(cmd, 'True')
-  #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
-  cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
-  DPopen(cmd, 'True')
-  #except:
-    #logger.error('failed to configure with yaim.') 
-    #return
+     logger.info('go yaim...')
+     #try :
+     cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
+     DPopen(cmd, 'True')
+     #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
+     cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
+     DPopen(cmd, 'True')
+     #except:
+       #logger.error('failed to configure with yaim.') 
+       #return
 
+  # for ce
+  elif type == 'ce':
+     logger.info('configuring CE...')
+     logger.info('starting pbs server...')
+     try:
+        cmd = ('/etc/init.d/pbs_server start')
+        DPopen(cmd, 'True')   
+     except:
+        logger.error('failed to start pbs server!')
+     try:
+        logger.info('go yaim...')
+        cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n  creamCE -n TORQUE_server -n TORQUE_utils 2>&1 ') 
+     except:
+        logger.error('failed to configure with yaim!') 
+        return
+ 
+  else:
+     logger.error('unknown configuration type!'); 
+  
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       
