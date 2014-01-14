@@ -1,1 +1,15 @@
 sensitivedata
+sensitivedata_CE
+userdata.txt.gz
+CloudInitFiles/test.py
+CloudInitFiles/tmp.conf
+ConfigureTest.ccfg
+SLC5.qcow2
+SLC5.raw
+cloud-init-0.7.5-bzr896.noarch.rpm
+cloud.cfg.orig
+create-new-base-image
+privkey.pem
+test.py
+tmp/
+userdata.txt
