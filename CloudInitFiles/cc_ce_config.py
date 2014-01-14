@@ -155,27 +155,38 @@ def handle_part(data,ctype,filename,payload):
   # TODO change back to eth1!!!
   cmd = ('/sbin/ifconfig eth1 | grep "inet addr" | awk -F: \'{print $2}\' | awk \'{print $1}\'')
   status,ip = commands.getstatusoutput(cmd)
-  if not ip:
+  if not ip or 'error' in ip:
      logger.error('public ip not found!')
-     return
+     #return
   if not status:
      logger.info('found public ip: '+ip+'')
      mac='02:00'
-     for block in str(ip).split('.'):
-        hx = hex(int(block)).upper()[2:].zfill(2)
-        mac+=(':'+hx+'')
-     logger.info('assigned mac address: '+mac+'')
+     try:
+        for block in str(ip).split('.'):
+           hx = hex(int(block)).upper()[2:].zfill(2)
+           mac+=(':'+hx+'')
+        logger.info('assigned mac address: '+mac+'')
+     except:
+        logger.error('could not assign mac address!')
+        #return 
   else:
      logger.error('could not determine public ip!')
+     #return
 
   wan_mask = '255.255.255.192'  
   if 'wan_mask' in ce_config_cfg:
      wan_mask = ce_config_cfg['wan_mask']
      logger.info('assigning wan mask: '+wan_mask+'')
   
+  gateway = '193.206.184.62'  
+  if 'gateway' in ce_config_cfg:
+     gateway = ce_config_cfg['gateway']
+     logger.info('assigning gateway: '+gateway+'')
+
   os.environ['WAN_MASK'] = wan_mask
   os.environ['WAN_MAC'] = mac
   os.environ['WAN_IP'] = ip
+  os.environ['GATEWAY'] = gateway
   cmd = ('''cat > /etc/sysconfig/network-scripts/ifcfg-eth1 << EOF
 DEVICE=eth1
 NETMASK=$WAN_MASK
@@ -183,12 +194,13 @@ HWADDR=$WAN_MAC
 BOOTPROTO=static
 IPADDR=$WAN_IP
 ONBOOT=yes
-GATEWAY=193.206.184.62
+GATEWAY=$GATEWAY
 EOF''')
   try:
     DPopen(cmd, 'True')
   except:
     loger.error('could not write file: /etc/sysconfig/network-scripts/ifcfg-eth1 !')
+    #return
 
   # create user qmanager
   logger.info('creating user "qmanager"')
