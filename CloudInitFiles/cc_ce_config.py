@@ -152,41 +152,43 @@ def handle_part(data,ctype,filename,payload):
 
   # configure public network
   logger.info('configuring public network...')
-  # TODO change back to eth1!!!
   cmd = ('/sbin/ifconfig eth1 | grep "inet addr" | awk -F: \'{print $2}\' | awk \'{print $1}\'')
   status,ip = commands.getstatusoutput(cmd)
   if not ip or 'error' in ip:
      logger.error('public ip not found!')
-     #return
-  if not status:
-     logger.info('found public ip: '+ip+'')
-     mac='02:00'
-     try:
-        for block in str(ip).split('.'):
-           hx = hex(int(block)).upper()[2:].zfill(2)
-           mac+=(':'+hx+'')
-        logger.info('assigned mac address: '+mac+'')
-     except:
-        logger.error('could not assign mac address!')
-        #return 
+     return
   else:
-     logger.error('could not determine public ip!')
-     #return
+     if not status:
+        logger.info('found public ip: '+ip+'')
+        logger.info('assigning mac address accordingly...')
+        mac='02:00'
+        try:
+           for block in str(ip).split('.'):
+              hx = hex(int(block)).upper()[2:].zfill(2)
+              mac+=(':'+hx+'')
+           logger.info('assigned mac address: '+mac+'')
+        except:
+           logger.error('could not assign mac address!')
+           return 
+     else:
+        logger.error('could not determine public ip!')
+        return
 
   wan_mask = '255.255.255.192'  
   if 'wan_mask' in ce_config_cfg:
      wan_mask = ce_config_cfg['wan_mask']
-     logger.info('assigning wan mask: '+wan_mask+'')
+  logger.info('assigning wan mask: '+wan_mask+'')
   
   gateway = '193.206.184.62'  
   if 'gateway' in ce_config_cfg:
      gateway = ce_config_cfg['gateway']
-     logger.info('assigning gateway: '+gateway+'')
+  logger.info('assigning gateway: '+gateway+'')
 
   os.environ['WAN_MASK'] = wan_mask
   os.environ['WAN_MAC'] = mac
   os.environ['WAN_IP'] = ip
   os.environ['GATEWAY'] = gateway
+  
   cmd = ('''cat > /etc/sysconfig/network-scripts/ifcfg-eth1 << EOF
 DEVICE=eth1
 NETMASK=$WAN_MASK
@@ -196,11 +198,13 @@ IPADDR=$WAN_IP
 ONBOOT=yes
 GATEWAY=$GATEWAY
 EOF''')
+
   try:
+    logger.info('writing /etc/sysconfig/network-scripts/ifcfg-eth1...')
     DPopen(cmd, 'True')
   except:
     loger.error('could not write file: /etc/sysconfig/network-scripts/ifcfg-eth1 !')
-    #return
+    return
 
   # create user qmanager
   logger.info('creating user "qmanager"')
@@ -247,7 +251,7 @@ EOF''')
         return
       for file in ce_config_cfg[block]:
         get_embedded(file, repo) 
-    elif block != 'name' and block != 'repo':
+    elif block != 'name' and block != 'repo' and block != 'wan_mask' and block != 'gateway':
       logger.info('reading embedded files...')
       get_embedded(block, '') 
 
