@@ -185,7 +185,7 @@ for line in fileinput.input():
                         default_flow_style=False)
                 if i not in standard_modules:
                   format_type = (''+i+'-config')
-                  if 'repo' in contents:
+                  if 'repo' in contents and 'repos' not in contents:
                     repo = single['repo']
                     #print repo
                   #if 'files' not in contents:

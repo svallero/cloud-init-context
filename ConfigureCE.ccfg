@@ -37,6 +37,8 @@
 #     - 'cc_addons.py'
 #     - 'cc_grid_config.py'
  
+hostname: 't2-dom0-02.to.infn.it'
+
 # CONFIGURE LOCAL FILESYSTEM ###############################################
 # partitions the ephemeral disk you attach to the VM                       #
 ############################################################################
@@ -75,8 +77,10 @@ igiinstall:
 
 certificate:
   embedfiles: 
-    - 'sensitive_data_CE/hostcert.pem'
-    - 'sensitive_data_CE/hostkey.pem'
+    #- 'sensitivedata_CE/hostcert.pem'
+    #- 'sensitivedata_CE/hostkey.pem'
+    - 'sensitivedata_CE/t2-dom0-02-12072013-cert.pem'
+    - 'sensitivedata_CE/t2-dom0-02-12072013-key.pem'
 
 # CONFIGURE GRID ###########################################################
 # If this config-file does not contain a section named 'grid_config',      #
@@ -107,77 +111,87 @@ grid_config:
 #     take files from "Grid-Prod.tar" repo.                                # 
 ############################################################################
 
-#igiyaim:
-#  yaimhome: '/opt/glite/yaim'
-#  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles'
-#  #tarfile: 'Grid-Prod.tar.gz'
-#  files:
-#    - 'ig-groups.conf'
-#    - 'ig-users.conf'
-#    - 'wn-list.conf' 
-#    - 'glite-bdii_site'
-#    - 'vo-belle'
-#    - 'vo-igi.italiangrid.it'
-#    - 'vo-superbvo.org'
-#    - 'vo-vo.cta.in2p3.fr'
-#  embedfiles: 
-#    - 'sensitivedata/site-info.def'
-#    - 'sensitivedata/glite-creamce'
+igiyaim:
+  type: 'ce'
+  yaimhome: '/opt/glite/yaim'
+  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  files:
+    - 'ig-groups.conf'
+    - 'ig-users.conf'
+    - 'wn-list.conf' 
+    - 'glite-bdii_site'
+    - 'vo-belle'
+    - 'vo-vo.cta.in2p3.fr'
+    - 'vo-vo.panda.gsi.de'
+  embedfiles: 
+    - 'sensitivedata_CE/site-info.def'
+    - 'sensitivedata_CE/glite-creamce'
 
-# ADD SSH_KNOWN_HOSTS ######################################################
-# File "ssh_known_hosts" is always embedded in the MIME,                   # 
-# either from local file or from repo (put a "+" before the file name)     #
+# CONFIGURE CE #############################################################
+# create and configure user qmanager and add useful scripts                # 
+# Files containing sensitive data should always be 'embedded', either from #
+# local or repo ('+').                                                     #
+# Files will go in destination directories as follows:                     #
+# --- 'scripts' -> /root/scripts                                           #
 ############################################################################
-
-#knownhosts:
-## repo: 'http://srm-dom0.to.infn.it/test'
-#  embedfiles: 
-#    - 'sensitivedata/ssh_known_hosts'
-
-# PUPPET ###################################################################
-# il modulo sembra funzionare, ma si pianta in                             #
-# 'did not receive certificate'.                                           #
-# The set of options below means:                                          # 
-# apply Puppet configuration synchronously, and exit on failure.           #
-# Note that the configuration is also applied when first starting the      # 
-# Puppet agent in background, but we want it to happen synchronously and   # 
-# to fail with a detailed message upon failure                             # 
-############################################################################
-
-#puppetconfig:
-## repo: 'http://srm-dom0.to.infn.it/test/production'
-#  embedfiles: 
-#    - 'sensitivedata/puppetremote-rsa'
-#  se: t2-se-00.to.infn.it 
-#  options:
-#    - 'onetime'
-#    - 'verbose'
-#    - 'ignorecache'
-#    - 'no-daemonize'
-#    - 'no-usecacheonfailure'
-#    - 'show_diff'
-#    - 'waitforcert=30'
-
-# INSTALL ZABBIX ###########################################################
-# I do not see any zabbix configuration here...                            #
-############################################################################
-
-#zabbix: true
-
-# EXTRA PACKAGES ###########################################################
-# specify repo for yum option --enablerepo                                 #
-# if 'none' only repos already enabled are considered                      #
-############################################################################
-
-#addons:
-#  epel:
-#    - 'tcsh'
-#    - 'bind-utils'
-#    - 'compat-libgfortran-41'
-#    - 'gcc-gfortran' 
-#    - 'libXpm'
-
-
+# some clean-up of useless files is needed TODO
+ce_config:
+  #name: 't2-ce-01.to.infn.it' 
+  name: 't2-dom0-02.to.infn.it' 
+  wan_mask: '255.255.255.192'
+  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  scripts: # files are fetched from repo at boot
+  #scripts_embedfiles: # if you want to embed the files ('+ if embed from repo')
+    - 'scripts/checknumprocs.sh'
+    - 'scripts/cpu-durata.sh'
+    - 'scripts/creanodo.sh'
+    - 'scripts/lanziajob.sh'
+    - 'scripts/lookatprocnum.awk'
+    - 'scripts/mettioffline.sh'
+    - 'scripts/mod-parseQstat.pl'
+    - 'scripts/parseQstat.pl' 
+    - 'scripts/prio.sh' 
+    - 'scripts/pulisci.sh' 
+    - 'scripts/qdel-waiting-jobs.sh' 
+    - 'scripts/quanteslot.sh' 
+    - 'scripts/quantifile.sh' 
+    - 'scripts/quantijob.sh' 
+    - 'scripts/runParseQstat.sh' 
+    - 'scripts/tunemaui.sh' 
+    - 'scripts/wall-durata.sh' 
+  keys_embedfiles:
+    - 'sensitivedata_CE/keys/authorized_keys'
+    - 'sensitivedata_CE/keys/id_rsa-create-node.pub'
+    - 'sensitivedata_CE/keys/id_rsa-delete-node.pub'
+    - 'sensitivedata_CE/keys/id_rsa-offline-node.pub'
+    - 'sensitivedata_CE/keys/id_rsa-pbsnodes.pub'
+    - 'sensitivedata_CE/keys/id_rsa-create-node'
+    - 'sensitivedata_CE/keys/id_rsa-delete-node'
+    - 'sensitivedata_CE/keys/id_rsa-offline-node'
+    - 'sensitivedata_CE/keys/id_rsa-pbsnodes'
+  cloudities:
+    - 'cloudities/custom-cpuinfo.sh' 
+    - 'cloudities/onevm-addr.rb' 
+    - 'cloudities/onevm-console.rb' 
+    - 'cloudities/onevm-wn-drain-ric.rb' 
+    - 'cloudities/onevm-wn-drain.rb' 
+    - 'cloudities/onevnet-new-helper.sh' 
+    - 'cloudities/onevnet-new.rb' 
+    - 'cloudities/pbsinfo.rb' 
+    - 'cloudities/scpWave.py' 
+    - 'cloudities/stage-one.sh' 
+    - 'cloudities/xpdsh.rb'
+  cloudities_embedfiles:
+    - 'sensitivedata_CE/cloudities/one-cache-sync.rb' 
+  servercontext:
+    - 'servercontext/create-node'
+    - 'servercontext/delete-node'    
+    - 'servercontext/delete-offline-node'    
+    - 'servercontext/offline-node'    
+    - 'servercontext/puppetca-clean-caller'    
+    - 'servercontext/ssh-hosts-keys'    
+  mauicfg: 
+    - 'maui.cfg'
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 
 # For instance the script to produce a summary logfile from the single     #
