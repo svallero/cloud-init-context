@@ -1,0 +1,20 @@
+##########################################
+# StoRM checksum configuration variables #
+##########################################
+
+# The following variables will be considered only during
+# the configuration of the ig_SE_storm_gridftp element.
+#
+# More information here: http://igrelease.forge.cnaf.infn.it/doku.php?id=doc:guides:site-info-variables
+# (look at "SE StoRM Gridftp" section)
+
+# General settings
+#---------------------------------------------------------
+
+# Enable or not the use of StoRM gridftp_dsi plugin  
+# OPTIONAL - Default value: no
+#GRIDFTP_WITH_DSI="no"
+# List of supported Virtual Organizations.
+#EXAMPLE: VOS="dteam infngrid"
+VOS=alice atlas cms lhcb dteam infngrid ops biomed compassit vo.cta.in2p3.fr belle bes
+

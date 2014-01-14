@@ -43,77 +43,6 @@ def list_types():
 
 ########################
 
-def get_tarfile(): 
-  logger.info('download .tar archieve with yaim configuration files...')
-
-  if 'repo' in se_config_cfg:
-     repo = se_config_cfg['repo']
-  else:
-     logger.error('repo not specified!')
-     return
-
-  tarfile = se_config_cfg['tarfile']
-  
-  origin = ''+repo+'/'+tarfile+''
-  destination = ''+rootdir+'/'+tarfile+''
-  # downloading .tar file  
-  try:
-    cmd = ('wget -O '+destination+' '+origin+'')
-    DPopen(shlex.split(cmd), 'False')
-  except:
-    logger.error('could not download .tar file!')
-    return
-
-  logger.info('preparing yaim...')
-  try:
-    cmd = ('tar zxvf '+destination+' -C '+rootdir+'')
-    DPopen(shlex.split(cmd), 'False')
-  except:
-    logger.error('could not unpack .tar file!')
-    return
-  logger.warning('files will not be moved into place (TODO)!!!')
-########################
-
-def get_embedded(embed_block, repo):
-
-  if repo:
-    logger.info('fetching file '+embed_block+' from repo: '+repo+'...') 
-    try:
-      value = urllib2.urlopen(''+repo+'/'+embed_block+'')
-    except:
-      logger.error('could not fetch configuration file!')
-      return
-    content = value.read()
-  else:  
-    logger.info('writing configuration file '+embed_block+'...') 
-    value = se_config_cfg[embed_block]
-    content = value
-  filename = os.path.basename(embed_block)
-  text_file = open(filename, "w")
-  text_file.write(content)
-  text_file.close()
-  logger.info(''+filename+' written')
-
-  if embed_block.startswith('scripts'):
-    dest = rootdir
-  elif embed_block.startswith('cloudities'):
-    dest = '/opt/cloudities'
-  elif embed_block.startswith('keys'):
-    dest = '/home/qmanager/.ssh'
-  elif embed_block.startswith('servercontext'):
-    dest = '/opt/cloudities/server-context'
-  elif embed_block.startswith('maui'):
-    dest = '/var/spool/maui'
-  
-  logger.info('moving file into place...')
-  try:
-    cmd = ('mv '+filename+' '+dest+'')
-    DPopen(cmd, 'True')
-  except:
-    logger.error('could not move file into place!')
-    return
-########################
-
 def handle_part(data,ctype,filename,payload):
 
   # data: the cloudinit object
@@ -196,126 +125,20 @@ EOF''')
   except:
     loger.error('could not restart network !')
     return 
-  # create user qmanager
-  logger.info('creating user "qmanager"')
-  try:
-     cmd = ('/usr/sbin/useradd -u 5353 -g nobody -d /home/qmanager -s /bin/bash qmanager')
-     DPopen(cmd, 'True') 
-  except:
-     logger.error('could not create user "qmanager"!')
-     return
 
-  # create directory structure  
-  logger.info('creating directory structure...') 
+  logger.info('linking to proper mysql-connector-java.jar')
+  # TODO: do not hardcode versions...
   try:
-    logger.info('creating /home/qmanager/.ssh')
-    cmd = ('mkdir -p /home/qmanager/.ssh')
-    DPopen(cmd, 'True') 
-    logger.info('creating /root/scripts')
-    cmd = ('mkdir -p /root/scripts')
-    DPopen(cmd, 'True') 
-    logger.info('creating /opt/cloudities')
-    cmd = ('mkdir -p /opt/cloudities')
-    DPopen(cmd, 'True') 
-    logger.info('creating /opt/cloudities/server-context')
-    cmd = ('mkdir -p /opt/cloudities/server-context')
-    DPopen(cmd, 'True') 
-  except:
-     logger.error('could not create directory structure!')
-     return
-   
-  # copy scripts into place
-  logger.info('copying scripts into place...') 
-
-  repo = 0
-  if 'repo' in se_config_cfg:
-    repo = se_config_cfg['repo']
-
-  for block in se_config_cfg:
-    if block == 'tarfile':
-      # incomplete, files are not moved to proper place (TODO)
-      get_tarfile()
-    elif (block == 'scripts' or block == 'cloudities' or block == 'keys'  or block == 'servercontext' or block == 'mauicfg'):
-      if not repo:
-        logger.error('repository for "files" not specified')  
-        return
-      for file in se_config_cfg[block]:
-        get_embedded(file, repo) 
-    elif block != 'name' and block != 'repo':
-      logger.info('reading embedded files...')
-      get_embedded(block, '') 
-
-  # setting proper permissions
-  logger.info('setting proper permissions to /home/qmanager/.ssh...') 
-  try:
-     cmd = ('chown -R qmanager:nobody /home/qmanager/.ssh')
-     DPopen(cmd, 'True')
-  except:
-     logger.error('could not change permissions!')
-     return
- 
-  # add qmanager to sudoers 
-  logger.info('adding "qmanager" to sudoers...')
-  try:
-     cmd = ('echo "qmanager  ALL = NOPASSWD: /opt/cloudities/server-context/ssh-hosts-keys" >> /etc/sudoers')
-     DPopen(cmd, 'True')
-  except:
-     logger.error('could not write /etc/sudoers file!')
-     return 
-  logger.info('patching /etc/sudoers...')
-  try:
-     cmd = ('sed -i -e i\'s/^Defaults\s\+requiretty/#Defaults   requiretty/\' /etc/sudoers')
-     DPopen(cmd, 'True')
-  except:
-     logger.error('could not patch file /etc/sudoers!')
-     return 
-  
-  # restorecon   
-  logger.info('restoring security context (restorecon) for /home/qmanager/.ssh/*...')
-  try:
-     cmd = ('/sbin/restorecon /home/qmanager/.ssh/*')
-     DPopen(cmd, 'True')
-  except:
-     logger.error('could not run restorecon!')
-     return 
-  
-  # install ruby
-  logger.info('installing ruby...')
-  try:
-     cmd = ('yum --enablerepo=epel -y install ruby')
-     DPopen(cmd, 'True')
-  except:
-     logger.error('could not install ruby!')
-     return 
-
-  cmd = ('yum clean all')
-  DPopen(cmd, 'True')
-  
-  # add qmanager as pbs manager 
-  logger.info('adding qmanager as torque server manager...')
-  try:
-    cmd = ('qmgr -c \'set server managers += qmanager@'+name+'\'')
+    cmd = ('rm -f /usr/share/java/storm-backend-server/mysql-connector-java-5.1.12.jar')  
     DPopen(cmd, 'True')
   except:
-    logger.error('could not set torque manager!')
+    logger.error('could not remove /usr/share/java/storm-backend-server/mysql-connector-java-5.1.12.jar')
     return
- 
-  # start maui
-  logger.info('starting maui...')
   try:
-    cmd = ('/sbin/service maui restart')
+    cmd = ('ln -s /usr/share/java/mysql-connector-java-5.1.17.jar /usr/share/java/storm-backend-server/mysql-connector-java-5.1.17.jar') 
     DPopen(cmd, 'True')
   except:
-    logger.error('could not start maui!')
+    logger.error('could not link /usr/share/java/mysql-connector-java-5.1.17.jar to /usr/share/java/storm-backend-server/!')
     return
-
-  # disable queues
-  logger.info('disabling all the queues but "cert" at the beginning...') 
-  try:
-    cmd = ('for i in `qstat -q | grep -v Queue | grep -v "cert" | grep R | cut -d"-" -f1`; do qmgr -c "s q $i enabled=false"; done')   
-    DPopen(cmd, 'True')
-  except:
-    logger.error('could not disable queues!')
-    return  
 
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

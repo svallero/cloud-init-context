@@ -1,0 +1,56 @@
+##########################################
+# StoRM gridhttps configuration variables #
+##########################################
+
+# The following variables will be considered only during
+# the configuration of the ig_SE_storm_gridhttps element.
+#
+
+# Trustmanager settings
+#---------------------------------------------------------
+# Tomcat service user.
+# OPTIONAL - Default value: tomcat
+#TOMCAT_USER=tomcat
+# Tomcat http port.
+# OPTIONAL - Default value: 8088
+#STORM_GRIDHTTPS_SERVER_PORT=8088
+# Tomcat https port.
+# OPTIONAL - Default value: 8443
+#STORM_GRIDHTTPS_HTTPS_SERVER_PORT=8443
+# Host certificate for Trustmanager connector.
+# OPTIONAL - Default value: /usr/share/tomcat5/conf/hostcert.pem
+#TOMCAT_HOSTCERT_LOCATION=/usr/share/tomcat5/conf/hostcert.pem
+# Host key for Trustmanager connector.
+# OPTIONAL - Default value: /usr/share/tomcat5/conf/hostkey.pem
+#TOMCAT_HOSTKEY_LOCATION=/usr/share/tomcat5/conf/hostkey.pem
+# Trustmanager connector crl update time interval.
+# OPTIONAL - Default value: 2h
+#TRUSTMANAGER_CRL_UPDATE_INTERVAL=2h
+
+# General settings
+#---------------------------------------------------------
+# Truststore location
+# OPTIONAL - Default value: /etc/grid-security/certificates
+#X509_CERT_DIR=/etc/grid-security/certificates
+# Host certificate location
+# OPTIONAL - Default value: /etc/grid-security/hostcert.pem
+#X509_HOST_CERT=/etc/grid-security/hostcert.pem
+# Host certificate key location
+# OPTIONAL - Default value: /etc/grid-security/hostkey.pem
+#X509_HOST_KEY=/etc/grid-security/hostkey.pem
+# Tomcat context deploy folder
+# OPTIONAL - Default value: /usr/share/tomcat5/conf/Catalina/localhost
+#TOMCAT_CONTEXT_DEPLOY_FOLDER=/usr/share/tomcat5/conf/Catalina/localhost
+# StoRM user (equal for all services)
+# OPTIONAL - Default value: storm 
+#STORM_USER=storm
+
+# StoRM Backend settings 
+#---------------------------------------------------------
+# StoRM backend server host
+# COMPULSORY - No default value
+STORM_BACKEND_HOST=
+# StoRM backend server rest port
+# OPTIONAL - Default value: 9998
+#STORM_BACKEND_REST_SERVICES_PORT=9998
+
