@@ -1,5 +1,6 @@
-sensitivedata
+sensitivedata_WN
 sensitivedata_CE
+sensitivedata_SE
 userdata.txt.gz
 CloudInitFiles/test.py
 CloudInitFiles/tmp.conf
