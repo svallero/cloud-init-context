@@ -114,7 +114,7 @@ def get_embedded(embed_block, repo):
     dest = ''+yaimhome+'/production/'
   elif embed_block.endswith('.def'):
     dest = ''+yaimhome+'/production/siteinfo/'
-  elif embed_block.startswith('glite-'):
+  elif embed_block.startswith('glite-') or embed_block.startswith('se_storm_'):
     dest = ''+yaimhome+'/production/siteinfo/services/'
   elif embed_block.startswith('vo-'):
     tmp = embed_block[3:]
@@ -233,7 +233,36 @@ def handle_part(data,ctype,filename,payload):
      except:
         logger.error('failed to configure with yaim!') 
         return
- 
+  # for se
+  elif type == 'se':
+     logger.info('configuring SE...')
+     logger.info('stopping iptables') 
+     try:
+        cmd = ('/sbin/service iptables stop')
+        DPopen(cmd, 'True')   
+     except:
+        logger.error('could not stop iptables!')
+     logger.info('chkconfig iptables off...') 
+     try:
+        cmd = ('/sbin/chkconfig iptables off')
+        DPopen(cmd, 'True')   
+     except:
+        logger.error('could not chkconfig iptables off!')
+        
+     logger.info('applying some patch...')
+     try:
+        cmd = ('sed -i -e "s/config_ntp//" /opt/glite/yaim/node-info.d/*') 
+        DPopen(cmd, 'True')   
+     except:
+        logger.error('failed to patch files in /opt/glite/yaim/node-info.d/!')  
+     try:
+        logger.info('go yaim...')
+        cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n se_storm_backend -n se_storm_frontend -n se_storm_gridftp 2>&1 ') 
+     except:
+        logger.error('failed to configure with yaim!') 
+        return
+        return 
+
   else:
      logger.error('unknown configuration type!'); 
   

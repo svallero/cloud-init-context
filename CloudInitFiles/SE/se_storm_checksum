@@ -1,0 +1,30 @@
+##########################################
+# StoRM checksum configuration variables #
+##########################################
+
+# The following variables will be considered only during
+# the configuration of the ig_SE_storm_checksum element.
+#
+# More information here: http://igrelease.forge.cnaf.infn.it/doku.php?id=doc:guides:site-info-variables
+# (look at "SE StoRM Checksum" section)
+
+# General settings
+#---------------------------------------------------------
+# StoRM Checksum service user.
+# OPTIONAL - Default value: storm
+#STORM_USER=storm
+
+# StoRM Checksum settings
+#---------------------------------------------------------
+# Status port.
+# OPTIONAL - Default value: 9995
+#STORM_CKSUM_STATUS_PORT=9995
+# Service port for accepting requests.
+# OPTIONAL - Default value: 9996
+#STORM_CKSUM_SERVICE_PORT=9996
+# Service port for shutting down.
+# OPTIONAL - Default value: 9997
+#STORM_CKSUM_SHUTDOWN_PORT=9997
+# Service threads number.
+# OPTIONAL - Default value: 3
+#STORM_CKSUM_THREADS=3

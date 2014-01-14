@@ -114,6 +114,7 @@ certificate:
 #     filename.conf -> $yaimhome/production/                               #
 #     filename.def  -> $yaimhome/production/siteinfo                       #
 #     glite-something -> $yaimhome/production/siteinfo/services            #
+#     se_storm_something -> $yaimhome/production/siteinfo/services         #
 #     vo-something    -> $yaimhome/production/siteinfo/vo.d                # 
 #                                                                          #
 # --- If "tarfile":                                                        # 
@@ -127,80 +128,36 @@ igiyaim:
   files:
     - 'ig-groups.conf'
     - 'ig-users.conf'
-    - 'wn-list.conf' 
+    - 'vo_Belle-group.conf'
+    - 'vo_Belle-users.conf'
+    - 'vo_Bes-group.conf'
+    - 'vo_Bes-users.conf'  
     - 'glite-bdii_site'
+    - 'se_storm_checksum'
+    - 'se_storm_gridftp'
+    - 'se_storm_gridhttps'
     - 'vo-belle'
+    - 'vo-igi.italiangrid.it'
+    - 'vo-superbvo.org'
     - 'vo-vo.cta.in2p3.fr'
-    - 'vo-vo.panda.gsi.de'
   embedfiles: 
-    - 'sensitivedata_CE/site-info.def'
-    - 'sensitivedata_CE/glite-creamce'
+    - 'sensitivedata_SE/site-info.def'
+    - 'sensitivedata_SE/se_storm_backend'
+    - 'sensitivedata_SE/se_storm_frontend'
 
-# CONFIGURE CE #############################################################
+
+# CONFIGURE SE #############################################################
 # create and configure user qmanager and add useful scripts                # 
 # Files containing sensitive data should always be 'embedded', either from #
 # local or repo ('+').                                                     #
 # Files will go in destination directories as follows:                     #
 # --- 'scripts' -> /root/scripts                                           #
 ############################################################################
-# some clean-up of useless files is needed TODO
+
 ce_config:
   #name: 't2-ce-01.to.infn.it' 
   name: 't2-dom0-02.to.infn.it' 
   wan_mask: '255.255.255.192'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
-  scripts: # files are fetched from repo at boot
-  #scripts_embedfiles: # if you want to embed the files ('+ if embed from repo')
-    - 'scripts/checknumprocs.sh'
-    - 'scripts/cpu-durata.sh'
-    - 'scripts/creanodo.sh'
-    - 'scripts/lanziajob.sh'
-    - 'scripts/lookatprocnum.awk'
-    - 'scripts/mettioffline.sh'
-    - 'scripts/mod-parseQstat.pl'
-    - 'scripts/parseQstat.pl' 
-    - 'scripts/prio.sh' 
-    - 'scripts/pulisci.sh' 
-    - 'scripts/qdel-waiting-jobs.sh' 
-    - 'scripts/quanteslot.sh' 
-    - 'scripts/quantifile.sh' 
-    - 'scripts/quantijob.sh' 
-    - 'scripts/runParseQstat.sh' 
-    - 'scripts/tunemaui.sh' 
-    - 'scripts/wall-durata.sh' 
-  keys_embedfiles:
-    - 'sensitivedata_CE/keys/authorized_keys'
-    - 'sensitivedata_CE/keys/id_rsa-create-node.pub'
-    - 'sensitivedata_CE/keys/id_rsa-delete-node.pub'
-    - 'sensitivedata_CE/keys/id_rsa-offline-node.pub'
-    - 'sensitivedata_CE/keys/id_rsa-pbsnodes.pub'
-    - 'sensitivedata_CE/keys/id_rsa-create-node'
-    - 'sensitivedata_CE/keys/id_rsa-delete-node'
-    - 'sensitivedata_CE/keys/id_rsa-offline-node'
-    - 'sensitivedata_CE/keys/id_rsa-pbsnodes'
-  cloudities:
-    - 'cloudities/custom-cpuinfo.sh' 
-    - 'cloudities/onevm-addr.rb' 
-    - 'cloudities/onevm-console.rb' 
-    - 'cloudities/onevm-wn-drain-ric.rb' 
-    - 'cloudities/onevm-wn-drain.rb' 
-    - 'cloudities/onevnet-new-helper.sh' 
-    - 'cloudities/onevnet-new.rb' 
-    - 'cloudities/pbsinfo.rb' 
-    - 'cloudities/scpWave.py' 
-    - 'cloudities/stage-one.sh' 
-    - 'cloudities/xpdsh.rb'
-  cloudities_embedfiles:
-    - 'sensitivedata_CE/cloudities/one-cache-sync.rb' 
-  servercontext:
-    - 'servercontext/create-node'
-    - 'servercontext/delete-node'    
-    - 'servercontext/delete-offline-node'    
-    - 'servercontext/offline-node'    
-    - 'servercontext/puppetca-clean-caller'    
-    - 'servercontext/ssh-hosts-keys'    
-  mauicfg: 
-    - 'maui.cfg'
 
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 
