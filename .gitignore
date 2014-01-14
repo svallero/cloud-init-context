@@ -4,6 +4,7 @@ sensitivedata_SE
 userdata.txt.gz
 CloudInitFiles/test.py
 CloudInitFiles/tmp.conf
+CloudInitFiles/test.log
 ConfigureTest.ccfg
 SLC5.qcow2
 SLC5.raw
@@ -14,3 +15,6 @@ privkey.pem
 test.py
 tmp/
 userdata.txt
+servercontext
+test.log
+test.txt
