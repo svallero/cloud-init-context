@@ -152,7 +152,7 @@ def handle_part(data,ctype,filename,payload):
 
   # If there isn't a grid_config reference in the configuration don't do anything
   if 'grid_config' not in cfg:
-    logger.error('worker-node will not be configured for GRID!!!')
+    logger.error('istance will not be configured for GRID!!!')
     return
   else:
     global grid_cfg
@@ -235,58 +235,58 @@ def handle_part(data,ctype,filename,payload):
     else:
        logger.info('munge.key is not specified: I will not configure pbs client!')
  
-  # Install munge on CE
-  installmunge = False
-  if 'install_munge' in grid_cfg:
-    installmunge = grid_cfg['install_munge']
+    # Install munge on CE
+    installmunge = False
+    if 'install_munge' in grid_cfg:
+      installmunge = grid_cfg['install_munge']
   
-  if installmunge == True:
-    logger.info('Installing munge server...')
-    try:
-      cmd = ('yum -y --enablerepo=epel install munge munge-libs')
-      DPopen(shlex.split(cmd), 'False') 
-    except:
-      logger.error('could not install software with yum!')
-      return  
+    if installmunge == True:
+      logger.info('Installing munge server...')
+      try:
+        cmd = ('yum -y --enablerepo=epel install munge munge-libs')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('could not install software with yum!')
+        return  
 
-    logger.info('Generating munge key...')
-    try:
-      cmd = ('/usr/sbin/create-munge-key')
-      DPopen(shlex.split(cmd), 'False') 
-    except:
-      logger.error('could not generate munge key!')
-      return
+      logger.info('Generating munge key...')
+      try:
+        cmd = ('/usr/sbin/create-munge-key')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('could not generate munge key!')
+        return
 
-    logger.info('Starting munge...')
-    try:
-      cmd = ('/sbin/service munge start')
-      DPopen(shlex.split(cmd), 'False') 
-    except:
-      logger.error('could not start munge!')
-      return
+      logger.info('Starting munge...')
+      try:
+        cmd = ('/sbin/service munge start')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('could not start munge!')
+        return
  
-    logger.info('Configure to start munge at boot...')
-    try:
-      cmd = ('/sbin/chkconfig munge on')
-      DPopen(shlex.split(cmd), 'False') 
-    except:
-      logger.error('failed to run "/sbin/chkconfig munge on"!')
-      return
+      logger.info('Configure to start munge at boot...')
+      try:
+        cmd = ('/sbin/chkconfig munge on')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('failed to run "/sbin/chkconfig munge on"!')
+        return
     
-    logger.info('Stop iptables...')
-    try:
-      cmd = ('/sbin/service iptables stop')
-      DPopen(shlex.split(cmd), 'False') 
-    except:
-      logger.error('could not stop iptables!')
-      return
+      logger.info('Stop iptables...')
+      try:
+        cmd = ('/sbin/service iptables stop')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('could not stop iptables!')
+        return
  
-    logger.info('Configure to stop iptables at boot...')
-    try:
-      cmd = ('/sbin/chkconfig iptables off')
-      DPopen(shlex.split(cmd), 'False') 
-    except:
-      logger.error('failed to run "/sbin/chkconfig iptables off"!')
-      return
+      logger.info('Configure to stop iptables at boot...')
+      try:
+        cmd = ('/sbin/chkconfig iptables off')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('failed to run "/sbin/chkconfig iptables off"!')
+        return
     
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

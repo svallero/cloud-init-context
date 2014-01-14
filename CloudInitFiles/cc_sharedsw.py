@@ -128,6 +128,12 @@ def handle_part(data,ctype,filename,payload):
   else:
     logger.error('no lustre-master specified!')
     return
+  # Desired filesystem
+  if 'filesystem' in sharedsw_cfg:
+     filesystem = sharedsw_cfg['filesystem']
+  else:
+    logger.error('no filesystem specified!')
+    return
   # Desired mount-point 
   if 'mount-point' in sharedsw_cfg:
     mount_point = sharedsw_cfg['mount-point']
@@ -148,7 +154,8 @@ def handle_part(data,ctype,filename,payload):
   # new entry
   try:
     logger.info('adding new entry in fstab...')
-    cmd = ('echo "'+lustre_master+'@tcp0:/expsoft '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
+    #cmd = ('echo "'+lustre_master+'@tcp0:/'+filesystem+' '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
+    cmd = ('echo "'+lustre_master+'@tcp0:/'+filesystem+' '+mount_point+' lustre defaults,localflock,_netdev,user_xattr 0 0" >> /etc/fstab')
     DPopen(cmd,'True')
     #os.system('echo "'+lustre_master+'@tcp0:/expsoft '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
   except:

@@ -111,7 +111,13 @@ def handle_part(data,ctype,filename,payload):
         DPopen(shlex.split(cmd), 'False')
         #else:
         #  cmd = ('yum -y install '+pack+'')
-           
+        if 'java' in pack:
+          try:
+            cmd = ('export JAVA_HOME=/usr/lib/jvm/jre-1.7.0-openjdk.x86_64')
+            DPopen(shlex.split(cmd), 'False')
+          except:  
+            logger.error('could not export java path!') 
+            return
       except:
         logger.error('could not install package '+pack+'')
         return 
