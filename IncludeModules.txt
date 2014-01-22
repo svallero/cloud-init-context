@@ -14,3 +14,4 @@ http:srm-dom0.to.infn.it/CloudInitFiles/cc_zabbix.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_addons.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_grid_config.py
 http:srm-dom0.to.infn.it/CloudInitFiles/summary_log.py
+http:srm-dom0.to.infn.it/CloudInitFiles/timings_log.py

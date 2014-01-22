@@ -2,6 +2,8 @@ sensitivedata_WN
 sensitivedata_CE
 sensitivedata_SE
 userdata.txt.gz
+userdataWN.txt.gz
+userdataCE.txt.gz
 CloudInitFiles/test.py
 CloudInitFiles/tmp.conf
 CloudInitFiles/test.log
@@ -18,3 +20,5 @@ userdata.txt
 servercontext
 test.log
 test.txt
+production
+Grid-Prod.tar*

@@ -60,10 +60,11 @@ cvmfs:
   install: true
   version: 2.1.15
   local:
-    repositories: alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch 
+    repositories: alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch, belle.cern.ch 
     http-proxy: http://t2-squid-01.to.infn.it:3128
     cache-base: /var/lib/cvmfs
     quota-limit: 18000
+    strict-mount: yes
 
 # MOUNT SHARED-SOFTWARE AREA VIA LUSTRE ####################################
 # sarebbe bene dare un nome piu' semplice agli rpm, tipo 'release'...      #
@@ -77,7 +78,7 @@ sharedsw:
   filesystem: expsoft
   mount-point: /opt/exp_software 
   rpms:  
-    repo: tmon.to.infn.it/lus3/down/1.8.8-x86_64/pa-cli
+    repository: "tmon.to.infn.it/lus3/down/1.8.8-x86_64/pa-cli"
     client: lustre-client-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm
     modules: lustre-client-modules-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm
 
@@ -119,7 +120,7 @@ igiinstall:
 
 igiyaim:
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles'
+  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
   #tarfile: 'Grid-Prod.tar.gz'
   files:
     - 'ig-groups.conf'
@@ -130,9 +131,11 @@ igiyaim:
     - 'vo-igi.italiangrid.it'
     - 'vo-superbvo.org'
     - 'vo-vo.cta.in2p3.fr'
+    - 'vo-vo.panda.gsi.de'
   embedfiles: 
-    - 'sensitivedata/site-info.def'
-    - 'sensitivedata/glite-creamce'
+    #- 'sensitivedata_WN/site-info.def'
+    - 'tmp/site-info.def'
+    - 'sensitivedata_WN/glite-creamce'
 
 # ADD SSH_KNOWN_HOSTS ######################################################
 # File "ssh_known_hosts" is always embedded in the MIME,                   # 
@@ -142,7 +145,8 @@ igiyaim:
 knownhosts:
 # repo: 'http://srm-dom0.to.infn.it/test'
   embedfiles: 
-    - 'sensitivedata/ssh_known_hosts'
+    #- 'sensitivedata_WN/ssh_known_hosts'
+    - 'tmp/ssh_known_hosts'
 
 # PUPPET ###################################################################
 # il modulo sembra funzionare, ma si pianta in                             #
@@ -155,10 +159,12 @@ knownhosts:
 ############################################################################
 
 puppetconfig:
+  version: '2.6.12-1'
+  repository: 'https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-7.noarch.rpm'
 # repo: 'http://srm-dom0.to.infn.it/test/production'
   embedfiles: 
-    - 'sensitivedata/puppetremote-rsa'
-  se: t2-se-00.to.infn.it 
+    - 'sensitivedata_WN/puppetremote-rsa'
+  master: t2-se-00.to.infn.it 
   options:
     - 'onetime'
     - 'verbose'
@@ -195,9 +201,11 @@ addons:
 grid_config:
 # repo: 'http://srm-dom0.to.infn.it/test/production'
   embedfiles: 
-    - 'sensitivedata/createhost-rsa'
-    - 'sensitivedata/munge.key'
-  ce: 't2-ce-01.to.infn.it'
+    - 'sensitivedata_WN/createhost-rsa'
+    #- 'sensitivedata_WN/munge.key'
+    - 'tmp/munge.key'
+  #ce: 't2-ce-01.to.infn.it'
+  ce: 't2-dom0-02.to.infn.it'
 
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 

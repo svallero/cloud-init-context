@@ -157,7 +157,7 @@ igiyaim:
 ce_config:
   #name: 't2-ce-01.to.infn.it' 
   name: 't2-dom0-02.to.infn.it' 
-  wan_mask: '255.255.255.192'
+  wan_mask: '255.255.255.128'
 
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 

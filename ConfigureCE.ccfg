@@ -36,8 +36,17 @@
 #     - 'cc_zabbix.py'
 #     - 'cc_addons.py'
 #     - 'cc_grid_config.py'
- 
-hostname: 't2-dom0-02.to.infn.it'
+
+# CONFIGURE PUBLIC NETWORK #################################################
+# set the hostname and configure eth1: mac, ip, netmask and gateway.       #
+# The ip is specified in the flavour because it's needed by ON to setup    #
+# the vm in the public network.                                            #
+############################################################################
+pub_net:
+  #name: 't2-ce-01.to.infn.it' 
+  name: 't2-dom0-02.to.infn.it' # compulsory in this block... 
+  wan_mask: '255.255.255.192'
+  gateway: '193.206.184.62'
 
 # CONFIGURE LOCAL FILESYSTEM ###############################################
 # partitions the ephemeral disk you attach to the VM                       #
@@ -51,6 +60,21 @@ localfs:
       # below percent of FREE 
       swap: 100
 
+
+# ADD CERTIFICATE ##########################################################
+# The certificate and private key are always embedded in the MIME,         # 
+# either from local file or from repo (put a "+" before the file name)     #
+############################################################################
+# also set the hostname here, since it is needed by folowing modules
+# to configure things properly (i.e. torque server, maui etc...)
+
+certificate:
+  #name: 't2-ce-01.to.infn.it' # not needed if already specified in pub_net 
+  embedfiles: 
+    #- 'sensitivedata_CE/hostcert.pem'
+    #- 'sensitivedata_CE/hostkey.pem'
+    - 'sensitivedata_CE/t2-dom0-02-12072013-cert.pem'
+    - 'sensitivedata_CE/t2-dom0-02-12072013-key.pem'
 
 # INSTALL GRID SOFTWARE ####################################################
 # i.e. Torque client and CAs						   # 
@@ -70,17 +94,6 @@ igiinstall:
     - emi-torque-server 
     - emi-torque-utils    
 
-# ADD CERTIFICATE ##########################################################
-# The certificate and private key are always embedded in the MIME,         # 
-# either from local file or from repo (put a "+" before the file name)     #
-############################################################################
-
-certificate:
-  embedfiles: 
-    #- 'sensitivedata_CE/hostcert.pem'
-    #- 'sensitivedata_CE/hostkey.pem'
-    - 'sensitivedata_CE/t2-dom0-02-12072013-cert.pem'
-    - 'sensitivedata_CE/t2-dom0-02-12072013-key.pem'
 
 # CONFIGURE GRID ###########################################################
 # If this config-file does not contain a section named 'grid_config',      #
@@ -136,9 +149,6 @@ igiyaim:
 ############################################################################
 # some clean-up of useless files is needed TODO
 ce_config:
-  #name: 't2-ce-01.to.infn.it' 
-  name: 't2-dom0-02.to.infn.it' 
-  wan_mask: '255.255.255.192'
   repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
   scripts: # files are fetched from repo at boot
   #scripts_embedfiles: # if you want to embed the files ('+ if embed from repo')
