@@ -28,7 +28,7 @@ logname = '/var/log/cloud-init-grid_config.log'
 #logname = '/tmp/cloud-init-grid_config.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -273,20 +273,20 @@ def handle_part(data,ctype,filename,payload):
         logger.error('failed to run "/sbin/chkconfig munge on"!')
         return
     
-      logger.info('Stop iptables...')
-      try:
-        cmd = ('/sbin/service iptables stop')
-        DPopen(shlex.split(cmd), 'False') 
-      except:
-        logger.error('could not stop iptables!')
-        return
+      #logger.info('Stop iptables...')
+      #try:
+      #  cmd = ('/sbin/service iptables stop')
+      #  DPopen(shlex.split(cmd), 'False') 
+      #except:
+      #  logger.error('could not stop iptables!')
+      #  return
  
-      logger.info('Configure to stop iptables at boot...')
-      try:
-        cmd = ('/sbin/chkconfig iptables off')
-        DPopen(shlex.split(cmd), 'False') 
-      except:
-        logger.error('failed to run "/sbin/chkconfig iptables off"!')
-        return
+      #logger.info('Configure to stop iptables at boot...')
+      #try:
+      #  cmd = ('/sbin/chkconfig iptables off')
+      #  DPopen(shlex.split(cmd), 'False') 
+      #except:
+      #  logger.error('failed to run "/sbin/chkconfig iptables off"!')
+      #  return
     
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

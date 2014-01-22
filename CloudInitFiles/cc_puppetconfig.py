@@ -28,9 +28,10 @@ puppetconfig_cfg = 0
 
 # Define logfile
 logname = '/var/log/cloud-init-puppetconfig.log'
+#logname = '/tmp/cloud-init-puppetconfig.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -72,12 +73,34 @@ def handle_part(data,ctype,filename,payload):
 
   
   logger.info('installing puppet...')
-  try:
-    cmd = ('yum -y --enablerepo=epel install puppet')
-    DPopen(shlex.split(cmd), 'False') 
-  except:
-    logger.error('could not install puppet!')
-    return 
+  if 'version' in puppetconfig_cfg:
+    version = puppetconfig_cfg['version']
+    logger.info('installing version '+version+'...')
+    try:
+      logger.info('getting puppet repository...')
+      if 'repository' in puppetconfig_cfg:  
+        rep = puppetconfig_cfg['repository']
+      else:
+        rep = 'https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-7.noarch.rpm'
+      cmd =('rpm -ivh '+rep+'')
+      DPopen(cmd, 'True')
+    except:
+      logger.error('could not setup puppet repository!')  
+      return
+    try:
+      cmd = ('yum -y install puppet-'+version+'.el6.noarch')
+      DPopen(shlex.split(cmd), 'False') 
+    except:
+      logger.error('could not install puppet!')
+      return 
+  else:
+    logger.info('installing latest version from epel...')
+    try:
+      cmd = ('yum -y --enablerepo=epel install puppet')
+      DPopen(shlex.split(cmd), 'False') 
+    except:
+      logger.error('could not install puppet!')
+      return 
 
   logger.info('removing old puppet keys...')
   try:
@@ -90,7 +113,7 @@ def handle_part(data,ctype,filename,payload):
   logger.info('retrieving the key to perform remote clean-up...')
   filename = 'puppetremote-rsa'  
   for block in puppetconfig_cfg:
-    if block != 'se' and block != 'options':
+    if block != 'master' and block != 'options':
       val = puppetconfig_cfg[block]
       get_embedded(block, val, '/tmp') 
       cmd = ('chmod 0400 /tmp/'+block+'')
@@ -100,10 +123,10 @@ def handle_part(data,ctype,filename,payload):
   # the remote machine should be configured to bind the
   # corresponding public key to a command that cleans up the machine from the
   # Puppet certificates list
-  if 'se' in puppetconfig_cfg:
-    se = puppetconfig_cfg['se']
+  if 'master' in puppetconfig_cfg:
+    se = puppetconfig_cfg['master']
   else:
-    logger.error('SE not specified!')
+    logger.error('Master not specified!')
     return
   try:
     cmd = ('ssh -t puppetremote@'+se+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')  

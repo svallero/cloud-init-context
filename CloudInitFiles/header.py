@@ -22,6 +22,7 @@ import urllib
 import sys
 import os
 import logging
+import socket
 
 # Define logger
 #logname = '/var/log/cloud-init-localfs.log'

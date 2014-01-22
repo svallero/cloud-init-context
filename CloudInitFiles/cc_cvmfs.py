@@ -25,7 +25,7 @@ import os
 
 # Define logfile
 logname = '/var/log/cloud-init-cvmfs.log'
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -119,6 +119,8 @@ def config_cvmfs(lfile, dfile, cmsfile, params):
       if prop_name == 'quota-limit':
         flocal.write('CVMFS_QUOTA_LIMIT='+str(value)+'\n')
         quota_aux_var = 0
+      if prop_name == 'strict-mount':
+        flocal.write('CVMFS_STRICT_MOUNT=='+value+'\n')
       if prop_name == 'cms-local-site':
          try:
            cmslocal = open(cmsfile, 'w')

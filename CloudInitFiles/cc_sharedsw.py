@@ -23,9 +23,10 @@ import urllib2
 
 # Define logfile
 logname = '/var/log/cloud-init-sharedsw.log'
+#logname = '/tmp/cloud-init-sharedsw.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -104,8 +105,8 @@ def handle_part(data,ctype,filename,payload):
      repo = ''
      client = ''
      modules = ''
-     if 'repo' in rpms_cfg:
-       repo = rpms_cfg['repo']
+     if 'repository' in rpms_cfg:
+       repo = rpms_cfg['repository']
      else:
        logger.error('no rpm repository specified!')
        return

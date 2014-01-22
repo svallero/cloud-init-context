@@ -10,7 +10,7 @@ import urllib2
 exceptions = ['The munge key file /etc/munge/munge.key is not found','install ig-vomscerts-all\' returned 1', 'File[zabbix_agentd_conf]/ensure: change from absent to file failed', 'install lcg-vomscerts-desy\' returned 1']
 
 logname = '/var/log/cloud-summary.log'
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 print 'Scanning for ERRORs in custom part-handler log-files...'
@@ -21,7 +21,7 @@ for file in files.splitlines():
    if (os.stat(file).st_size != 0):
      fh = open(file)
      for line in fh:
-       if 'ERROR' in line or 'merr' in line:
+       if 'ERROR' in line or 'merr' in line or 'errno' in line:
          # 'merr' comes from puppet, for some reason the exception 
          # is not caught by python 
          if not any(e in line for e in exceptions):
@@ -35,7 +35,12 @@ for file in files.splitlines():
            
      if not errors:
        logger.log(14,file)  
-outf=open(logname)
-outf.write('In case of errors in "cloud-init-puppetconfig.log" also grep for "merr"!') 
-outf.close()
+
+logger.info('************************************************')
+logger.info('In case of errors in "cloud-init-puppetconfig.log" also grep for "merr"!') 
+logger.info('In case of errors in "cloud-init-igiyaim.log" also grep for "errno"!') 
+logger.info('************************************************')
+#outf=open(logname)
+#outf.write('In case of errors in "cloud-init-puppetconfig.log" also grep for "merr"!') 
+#outf.close()
 print ('Summary written in '+logname+'')
