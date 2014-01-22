@@ -27,7 +27,7 @@ import ntpath
 logname = '/var/log/cloud-init-igiinstall.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -93,14 +93,15 @@ def handle_part(data,ctype,filename,payload):
         logger.error('unknown repo type, expected .rpm or .repo!')
          
   # Install some base package
-  logger.info('installing some yum addon...')
-  try:
-    cmd = ('yum -y install yum-priorities yum-protectbase epel-release')
-    DPopen(shlex.split(cmd), 'False')
-  except:
-    logger.error('could not install yum addons!')
-    return
-  # Now install custom packages 
+  #logger.info('installing some yum addon...')
+  #try:
+  #  cmd = ('yum -y install yum-priorities yum-protectbase epel-release')
+  #  DPopen(shlex.split(cmd), 'False')
+  #except:
+  #  logger.error('could not install yum addons!')
+  #  return
+
+  # Install custom packages 
   logger.info('installing custom packages...')
   if 'packages' in igiinstall_cfg:
     packages = igiinstall_cfg['packages']

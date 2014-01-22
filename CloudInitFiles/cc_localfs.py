@@ -29,7 +29,7 @@ logname = '/var/log/cloud-init-localfs.log'
 #logname = '/tmp/cloud-init-localfs.log'
 # Import script with definition of logger and some useful function 
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -142,19 +142,19 @@ def handle_part(data,ctype,filename,payload):
        logger.error('dd command failed!')
        return 
 
-    try:
-       cmd = ('yum -y install  lvm2')
-       DPopen(cmd,'True') 
-    except:
-       logger.error('yum installation of lvm2 has failed!')
-       return
+    #try:
+    #   cmd = ('yum -y install  lvm2')
+    #   DPopen(cmd,'True') 
+    #except:
+    #   logger.error('yum installation of lvm2 has failed!')
+    #   return
 
-    try:
-       cmd = ('yum -y install  xfsprogs')
-       DPopen(cmd,'True') 
-    except:
-       logger.error('yum installation of xfsprogs has failed!')
-       return
+    #try:
+    #   cmd = ('yum -y install  xfsprogs')
+    #   DPopen(cmd,'True') 
+    #except:
+    #   logger.error('yum installation of xfsprogs has failed!')
+    #   return
 
     logger.info('creating physical volume...')
     try:

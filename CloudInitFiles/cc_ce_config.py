@@ -30,9 +30,10 @@ rootdir = '/root/scripts'
 # Define logfile
 logname = '/var/log/cloud-init-ce_config.log'
 #logname = '/tmp/cloud-init-ce_config.log'
+#logname = '/tmp/cloud-init-ce_config.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -143,68 +144,86 @@ def handle_part(data,ctype,filename,payload):
   global ce_config_cfg 
   ce_config_cfg = cfg['ce_config'] 
   
-  if 'name' in ce_config_cfg:
-     name = ce_config_cfg['name']
-     logger.info('configuring CE: '+name+'')
-  else:
-     logger.error('CE name not specified!')
-     return 
+  #if 'name' in ce_config_cfg:
+  #   name = ce_config_cfg['name']
+  #   logger.info('configuring CE: '+name+'')
+  #else:
+  #   logger.error('CE name not specified!')
+  #   return 
 
-  # configure public network
-  logger.info('configuring public network...')
-  cmd = ('/sbin/ifconfig eth1 | grep "inet addr" | awk -F: \'{print $2}\' | awk \'{print $1}\'')
-  status,ip = commands.getstatusoutput(cmd)
-  if not ip or 'error' in ip:
-     logger.error('public ip not found!')
-     return
-  else:
-     if not status:
-        logger.info('found public ip: '+ip+'')
-        logger.info('assigning mac address accordingly...')
-        mac='02:00'
-        try:
-           for block in str(ip).split('.'):
-              hx = hex(int(block)).upper()[2:].zfill(2)
-              mac+=(':'+hx+'')
-           logger.info('assigned mac address: '+mac+'')
-        except:
-           logger.error('could not assign mac address!')
-           return 
-     else:
-        logger.error('could not determine public ip!')
-        return
-
-  wan_mask = '255.255.255.192'  
-  if 'wan_mask' in ce_config_cfg:
-     wan_mask = ce_config_cfg['wan_mask']
-  logger.info('assigning wan mask: '+wan_mask+'')
+  logger.info('determining the hostname...')
   
-  gateway = '193.206.184.62'  
-  if 'gateway' in ce_config_cfg:
-     gateway = ce_config_cfg['gateway']
-  logger.info('assigning gateway: '+gateway+'')
-
-  os.environ['WAN_MASK'] = wan_mask
-  os.environ['WAN_MAC'] = mac
-  os.environ['WAN_IP'] = ip
-  os.environ['GATEWAY'] = gateway
-  
-  cmd = ('''cat > /etc/sysconfig/network-scripts/ifcfg-eth1 << EOF
-DEVICE=eth1
-NETMASK=$WAN_MASK
-HWADDR=$WAN_MAC
-BOOTPROTO=static
-IPADDR=$WAN_IP
-ONBOOT=yes
-GATEWAY=$GATEWAY
-EOF''')
-
   try:
-    logger.info('writing /etc/sysconfig/network-scripts/ifcfg-eth1...')
-    DPopen(cmd, 'True')
+     name = socket.getfqdn()
   except:
-    loger.error('could not write file: /etc/sysconfig/network-scripts/ifcfg-eth1 !')
-    return
+     logger.error('could not determine the hostname!')
+     return
+  
+  # configure public network
+  #logger.info('configuring public network...')
+  #cmd = ('/sbin/ifconfig eth1 | grep "HWaddr" | awk \'{print $5}\'')
+  #status,mac = commands.getstatusoutput(cmd)
+  #if not mac or 'error' in mac:
+  #   logger.error('public mac not found!')
+  #   return
+  #else:
+  #   if not status:
+    #    logger.info('found public mac: '+mac+'')
+   #     logger.info('assigning ip address accordingly...')
+   #     ip = ''
+   #     try:
+   #        for block in str(mac).split(':'):
+   #           dec = int(block,16)
+     #         ip +=(''+str(dec)+'.')
+    #       ip = ip[:-1] 
+     #      ip = ip[4:] 
+      #     logger.info('assigned ip address: '+ip+'')
+      #  except:
+      #     logger.error('could not assign ip address!')
+      #     return 
+     #else:
+     #   logger.error('could not determine public mac!')
+     #   return
+#
+#  wan_mask = '255.255.255.192'  
+#  if 'wan_mask' in ce_config_cfg:
+#     wan_mask = ce_config_cfg['wan_mask']
+#  logger.info('assigning wan mask: '+wan_mask+'')
+#  
+#  gateway = '193.206.184.62'  
+#  if 'gateway' in ce_config_cfg:
+#     gateway = ce_config_cfg['gateway']
+#  logger.info('assigning gateway: '+gateway+'')
+#
+#  os.environ['WAN_MASK'] = wan_mask
+#  os.environ['WAN_MAC'] = mac
+#  os.environ['WAN_IP'] = ip
+#  os.environ['GATEWAY'] = gateway
+#  
+#  cmd = ('''cat > /etc/sysconfig/network-scripts/ifcfg-eth1 << EOF
+#DEVICE=eth1
+#NETMASK=$WAN_MASK
+#HWADDR=$WAN_MAC
+#BOOTPROTO=static
+#IPADDR=$WAN_IP
+#ONBOOT=yes
+#GATEWAY=$GATEWAY
+#EOF''')
+
+#  try:
+#    logger.info('writing /etc/sysconfig/network-scripts/ifcfg-eth1...')
+#    DPopen(cmd, 'True')
+#  except:
+#    loger.error('could not write file: /etc/sysconfig/network-scripts/ifcfg-eth1 !')
+#    return
+#  logger.info('restarting network...')
+#  try:
+#    cmd = ('service network restart')
+#    DPopen(cmd, 'True')
+#  except:
+#    loger.error('could not restart network!')
+#    return
+#    
 
   # create user qmanager
   logger.info('creating user "qmanager"')
@@ -256,6 +275,14 @@ EOF''')
       get_embedded(block, '') 
 
   # setting proper permissions
+  logger.info('setting proper permissions to /opt/cloudities/server-context...')
+  try:
+    cmd = ('chmod -R 755 /opt/cloudities/server-context') 
+    DPopen(cmd, 'True')
+  except:
+     logger.error('could not change permissions!')
+     return
+  
   logger.info('setting proper permissions to /home/qmanager/.ssh...') 
   try:
      cmd = ('chown -R qmanager:nobody /home/qmanager/.ssh')
@@ -274,7 +301,8 @@ EOF''')
      return 
   logger.info('patching /etc/sudoers...')
   try:
-     cmd = ('sed -i -e i\'s/^Defaults\s\+requiretty/#Defaults   requiretty/\' /etc/sudoers')
+     #cmd = ('sed -i -e i\'s/^Defaults\s\+requiretty/#Defaults\ requiretty/\' /etc/sudoers')
+     cmd = ('sed -i -e \'s/\s*Defaults\s*requiretty$/#Defaults    requiretty/\' /etc/sudoers')
      DPopen(cmd, 'True')
   except:
      logger.error('could not patch file /etc/sudoers!')
@@ -290,16 +318,16 @@ EOF''')
      return 
   
   # install ruby
-  logger.info('installing ruby...')
-  try:
-     cmd = ('yum --enablerepo=epel -y install ruby')
-     DPopen(cmd, 'True')
-  except:
-     logger.error('could not install ruby!')
-     return 
+  #logger.info('installing ruby...')
+  #try:
+  #   cmd = ('yum --enablerepo=epel -y install ruby')
+  #   DPopen(cmd, 'True')
+  #except:
+  #   logger.error('could not install ruby!')
+  #   return 
 
-  cmd = ('yum clean all')
-  DPopen(cmd, 'True')
+  #cmd = ('yum clean all')
+  #DPopen(cmd, 'True')
   
   # add qmanager as pbs manager 
   logger.info('adding qmanager as torque server manager...')
@@ -310,6 +338,16 @@ EOF''')
     logger.error('could not set torque manager!')
     return
  
+  # the hostname is set by CloudInit after running the custom part-handlers,
+  # but maui needs it to be configured in order to start
+  #logger.info('configuring the hostname...')
+  #try:
+  #  cmd = ('hostname '+name+'') 
+  #  DPopen(cmd, 'True')
+  #except:
+  #  logger.error('could not configure the hostname!')
+  #  return
+  
   # start maui
   logger.info('starting maui...')
   try:

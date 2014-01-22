@@ -31,7 +31,7 @@ logname = '/var/log/cloud-init-igiyaim.log'
 #logname = '/tmp/cloud-init-igiyaim.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################
@@ -198,21 +198,21 @@ def handle_part(data,ctype,filename,payload):
        logger.error('could not patch file "$yaimhome/node-info.d/wn_torque_noafs"')
        return
 
-     try:
-       cmd = ('/sbin/service iptables stop')
-       DPopen(shlex.split(cmd), 'False')
-       cmd = ('/usr/sbin/setenforce 0')
-       DPopen(shlex.split(cmd), 'False')
-     except:
-       logger.error('failed to disable firewall and selinux!') 
-       return
+     #try:
+     #  cmd = ('/sbin/service iptables stop')
+     #  DPopen(shlex.split(cmd), 'False')
+     #  cmd = ('/usr/sbin/setenforce 0')
+     #  DPopen(shlex.split(cmd), 'False')
+     #except:
+     #  logger.error('failed to disable firewall and selinux!') 
+     #  return
 
      logger.info('go yaim...')
      #try :
      cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
      DPopen(cmd, 'True')
      #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
-     cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
+     cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
      DPopen(cmd, 'True')
      #except:
        #logger.error('failed to configure with yaim.') 
@@ -227,27 +227,42 @@ def handle_part(data,ctype,filename,payload):
         DPopen(cmd, 'True')   
      except:
         logger.error('failed to start pbs server!')
+     #logger.info('stopping selinux...')
+     #try:
+     #  cmd = ('/usr/sbin/setenforce 0')
+     #  DPopen(shlex.split(cmd), 'False')
+     #except:
+     #  logger.error('failed to stop selinux!')
+     #  return 
      try:
         logger.info('go yaim...')
-        cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n  creamCE -n TORQUE_server -n TORQUE_utils 2>&1 ') 
+        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n  creamCE -n TORQUE_server -n TORQUE_utils 2>&1') 
+        DPopen(cmd, 'True')   
      except:
         logger.error('failed to configure with yaim!') 
         return
   # for se
   elif type == 'se':
      logger.info('configuring SE...')
-     logger.info('stopping iptables') 
-     try:
-        cmd = ('/sbin/service iptables stop')
-        DPopen(cmd, 'True')   
-     except:
-        logger.error('could not stop iptables!')
-     logger.info('chkconfig iptables off...') 
-     try:
-        cmd = ('/sbin/chkconfig iptables off')
-        DPopen(cmd, 'True')   
-     except:
-        logger.error('could not chkconfig iptables off!')
+     #logger.info('stopping iptables') 
+     #try:
+     #   cmd = ('/sbin/service iptables stop')
+     #   DPopen(cmd, 'True')   
+     #except:
+     #   logger.error('could not stop iptables!')
+     #logger.info('chkconfig iptables off...') 
+     #try:
+     #   cmd = ('/sbin/chkconfig iptables off')
+     #   DPopen(cmd, 'True')   
+     #except:
+     #   logger.error('could not chkconfig iptables off!')
+     #logger.info('stopping selinux...')
+     #try:
+     #  cmd = ('/usr/sbin/setenforce 0')
+     #  DPopen(shlex.split(cmd), 'False')
+     #except:
+     #  logger.error('failed to stop selinux!')
+     #  return 
         
      logger.info('applying some patch...')
      try:
@@ -257,7 +272,8 @@ def handle_part(data,ctype,filename,payload):
         logger.error('failed to patch files in /opt/glite/yaim/node-info.d/!')  
      try:
         logger.info('go yaim...')
-        cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n se_storm_backend -n se_storm_frontend -n se_storm_gridftp 2>&1 ') 
+        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n se_storm_backend -n se_storm_frontend -n se_storm_gridftp 2>&1 ') 
+        DPopen(cmd, 'True')   
      except:
         logger.error('failed to configure with yaim!') 
         return

@@ -31,7 +31,7 @@ knownhosts_cfg = 0
 logname = '/var/log/cloud-init-knownhosts.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/test/header.py')
+response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
 ########################

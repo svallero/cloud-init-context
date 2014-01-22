@@ -24,12 +24,12 @@ import os
 import urllib2
 
 # Define global because needed in different functions
-se_config_cfg = 0
+pub_net_cfg = 0
 rootdir = '/root/scripts'
 
 # Define logfile
-logname = '/var/log/cloud-init-se_config.log'
-#logname = '/tmp/cloud-init-se_config.log'
+logname = '/var/log/cloud-init-pub_net.log'
+#logname = '/tmp/cloud-init-pub_net.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
@@ -39,7 +39,7 @@ exec (response.read())
 
 def list_types():
   # return a list of mime-types that are handled by this module
-  return(["text/se_config-config"])
+  return(["text/pub_net-config"])
 
 ########################
 
@@ -63,48 +63,71 @@ def handle_part(data,ctype,filename,payload):
   # Payload should be interpreted as yaml since configuration is given in cloud-config format
   cfg = util.load_yaml(payload)
   
-  # If there isn't a se_config reference in the configuration don't do anything
-  if 'se_config' not in cfg:
-     logger.error('se_config configuration was not found!')
+  # If there isn't a pub_net reference in the configuration don't do anything
+  if 'pub_net' not in cfg:
+     logger.error('pub_net configuration was not found!')
      return 
  
-  logger.info('ready to configure SE')
-  global se_config_cfg 
-  se_config_cfg = cfg['se_config'] 
+  logger.info('ready to setup public network...')
+  global pub_net_cfg 
+  pub_net_cfg = cfg['pub_net'] 
   
-  if 'name' in se_config_cfg:
-     name = se_config_cfg['name']
-     logger.info('configuring SE: '+name+'')
-  else:
-     logger.error('SE name not specified!')
-     return 
+  # set the hostname
+  logger.info('setting the hostname...')
+  if 'name' not in pub_net_cfg:
+    logger.error('name not specified!')
+    return
+  name = pub_net_cfg['name']
 
-  # configure public network
+  try:
+    cmd = ('hostname '+name+'')
+    DPopen(cmd, 'True')
+  except:
+    logger.error('could not configure the hostname!')
+    return
+  logger.info('hostname set to: '+name+'')
+
+  # configure public interface on eth1: mav, ip, netmask and gateway
   logger.info('configuring public network...')
-  # TODO change back to eth1!!!
-  cmd = ('/sbin/ifconfig eth1 | grep "inet addr" | awk -F: \'{print $2}\' | awk \'{print $1}\'')
-  status,ip = commands.getstatusoutput(cmd)
-  if not ip:
-     logger.error('public ip not found!')
+  cmd = ('/sbin/ifconfig eth1 | grep "HWaddr" | awk \'{print $5}\'')
+  status,mac = commands.getstatusoutput(cmd)
+  if not mac or 'error' in mac:
+     logger.error('public mac not found!')
      return
-  if not status:
-     logger.info('found public ip: '+ip+'')
-     mac='02:00'
-     for block in str(ip).split('.'):
-        hx = hex(int(block)).upper()[2:].zfill(2)
-        mac+=(':'+hx+'')
-     logger.info('assigned mac address: '+mac+'')
   else:
-     logger.error('could not determine public ip!')
+     if not status:
+        logger.info('found public mac: '+mac+'')
+        logger.info('assigning ip address accordingly...')
+        ip = ''
+        try:
+           for block in str(mac).split(':'):
+              dec = int(block,16)
+              ip +=(''+str(dec)+'.')
+           ip = ip[:-1] 
+           ip = ip[4:] 
+           logger.info('assigned ip address: '+ip+'')
+        except:
+           logger.error('could not assign ip address!')
+           return 
+     else:
+        logger.error('could not determine public mac!')
+        return
 
   wan_mask = '255.255.255.192'  
-  if 'wan_mask' in se_config_cfg:
-     wan_mask = se_config_cfg['wan_mask']
-     logger.info('assigning wan mask: '+wan_mask+'')
+  if 'wan_mask' in pub_net_cfg:
+     wan_mask = pub_net_cfg['wan_mask']
+  logger.info('assigning wan mask: '+wan_mask+'')
   
+  gateway = '193.206.184.62'  
+  if 'gateway' in pub_net_cfg:
+     gateway = pub_net_cfg['gateway']
+  logger.info('assigning gateway: '+gateway+'')
+
   os.environ['WAN_MASK'] = wan_mask
   os.environ['WAN_MAC'] = mac
   os.environ['WAN_IP'] = ip
+  os.environ['GATEWAY'] = gateway
+  
   cmd = ('''cat > /etc/sysconfig/network-scripts/ifcfg-eth1 << EOF
 DEVICE=eth1
 NETMASK=$WAN_MASK
@@ -112,33 +135,21 @@ HWADDR=$WAN_MAC
 BOOTPROTO=static
 IPADDR=$WAN_IP
 ONBOOT=yes
-GATEWAY=193.205.66.254
+GATEWAY=$GATEWAY
 EOF''')
+
   try:
+    logger.info('writing /etc/sysconfig/network-scripts/ifcfg-eth1...')
     DPopen(cmd, 'True')
   except:
     loger.error('could not write file: /etc/sysconfig/network-scripts/ifcfg-eth1 !')
-
-  try:
-    cmd = ('/sbin/service network restart')
-    DPopen(cmd, 'True')
-  except:
-    loger.error('could not restart network !')
-    return 
-
-  logger.info('linking to proper mysql-connector-java.jar')
-  # TODO: do not hardcode versions...
-  try:
-    cmd = ('rm -f /usr/share/java/storm-backend-server/mysql-connector-java-5.1.12.jar')  
-    DPopen(cmd, 'True')
-  except:
-    logger.error('could not remove /usr/share/java/storm-backend-server/mysql-connector-java-5.1.12.jar')
     return
+  logger.info('restarting network...')
   try:
-    cmd = ('ln -s /usr/share/java/mysql-connector-java-5.1.17.jar /usr/share/java/storm-backend-server/mysql-connector-java-5.1.17.jar') 
+    cmd = ('service network restart')
     DPopen(cmd, 'True')
   except:
-    logger.error('could not link /usr/share/java/mysql-connector-java-5.1.17.jar to /usr/share/java/storm-backend-server/!')
+    loger.error('could not restart network!')
     return
-
+    
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       
