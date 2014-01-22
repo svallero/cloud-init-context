@@ -1,7 +1,8 @@
 ###################
 # belle           #
 ###################
-SW_DIR="$VO_SW_DIR/belle"
+#SW_DIR="$VO_SW_DIR/belle"
+SW_DIR="/cvmfs/belle.cern.ch/sl6"
 DEFAULT_SE="$SE_HOST"
 STORAGE_DIR="$CLASSIC_STORAGE_DIR/belle"
 USER_HOME_PREFIX="/home"
