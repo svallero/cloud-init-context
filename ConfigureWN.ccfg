@@ -37,6 +37,7 @@
 #     - 'cc_addons.py'
 #     - 'cc_grid_config.py'
  
+
 # CONFIGURE LOCAL FILESYSTEM ###############################################
 # partitions the ephemeral disk you attach to the VM                       #
 ############################################################################
@@ -60,11 +61,11 @@ cvmfs:
   install: true
   version: 2.1.15
   local:
-    repositories: alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch, belle.cern.ch 
-    http-proxy: http://t2-squid-01.to.infn.it:3128
+    repositories: 'alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch,belle.cern.ch' 
+    http-proxy: 'http://t2-squid-01.to.infn.it:3128'
     cache-base: /var/lib/cvmfs
     quota-limit: 18000
-    strict-mount: yes
+    strict-mount: 'yes' # do not forget the '' here!
 
 # MOUNT SHARED-SOFTWARE AREA VIA LUSTRE ####################################
 # sarebbe bene dare un nome piu' semplice agli rpm, tipo 'release'...      #
@@ -149,8 +150,6 @@ knownhosts:
     - 'tmp/ssh_known_hosts'
 
 # PUPPET ###################################################################
-# il modulo sembra funzionare, ma si pianta in                             #
-# 'did not receive certificate'.                                           #
 # The set of options below means:                                          # 
 # apply Puppet configuration synchronously, and exit on failure.           #
 # Note that the configuration is also applied when first starting the      # 

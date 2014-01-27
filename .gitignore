@@ -22,3 +22,11 @@ test.log
 test.txt
 production
 Grid-Prod.tar*
+ConfigureKeys.ccfg
+ConfigureWN_snapshot.ccfg
+ConfigureWNreal.ccfg
+ListWN.txt
+ListWNreal.txt
+userdataWN.txt
+userdataWN_snapshot.txt.gz
+userdataWNreal.txt.gz
