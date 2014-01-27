@@ -26,7 +26,7 @@ except ImportError:
 
 # Remember to add below all the standard modules you intend to use 
 # (better to put all...) TODO
-standard_modules = ['packages', 'runcmd', 'yum_repos', 'bootcmd', 'preserve_hostname', 'hostname', 'yum_repos', 'write_files']
+standard_modules = ['cloud_final_modules', 'disable_ssh', 'ssh_genkeytypes', 'ssh', 'ssh_deletekeys', 'packages', 'runcmd', 'yum_repos', 'bootcmd', 'preserve_hostname', 'hostname', 'yum_repos', 'write_files']
 
 #########################################
 class OrderedDictYAMLLoader(yaml.Loader):
@@ -125,6 +125,7 @@ for line in fileinput.input():
    (filename, format_type) = line.split(":", 1)
    # User defined cloud-config
    if 'multiple-config' in format_type:
+      instance_type = filename[len('Configure'):-len('.ccfg')]
       with open(filename) as fh:
          contents = fh.read()
          # Load contents in order with custom loader
@@ -216,7 +217,8 @@ for line in fileinput.input():
                              else:
                                tmp1,tmp2 = part.split('_')
                                file = ''+tmp1+'/'+tail+''
-                           single[file]=filecontent.strip()
+                           #single[file]=filecontent.strip()
+                           single[file]=filecontent
                          #del single['embedfiles'] 
                          del single[part] 
                 
@@ -251,7 +253,7 @@ for line in fileinput.input():
 # Encode in base 64
 output = b64encode(combined_message.as_string())
 # Write output file
-ofilename = 'userdata.txt.gz'
+ofilename = ('userdata'+instance_type+'.txt.gz')
 ofile = open(ofilename,"wb")
 
 
