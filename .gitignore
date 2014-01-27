@@ -30,3 +30,8 @@ ListWNreal.txt
 userdataWN.txt
 userdataWN_snapshot.txt.gz
 userdataWNreal.txt.gz
+CloudInitFiles/CE-test/
+CloudInitFiles/WN-test/
+CloudInitFiles/cloud-timings.log
+CloudInitFiles/tmp.txt
+.gitignore

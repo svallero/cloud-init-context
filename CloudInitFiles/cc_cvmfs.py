@@ -25,6 +25,7 @@ import os
 
 # Define logfile
 logname = '/var/log/cloud-init-cvmfs.log'
+#logname = '/tmp/cloud-init-cvmfs.log'
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
 exec (response.read())
 
@@ -99,28 +100,42 @@ def install_cvmfs(version, rhel):
 
 def config_cvmfs(lfile, dfile, cmsfile, params):
   quota_aux_var = 1   # Aux varibale to check whether to write default quota-limit value or not   
-  
+  logger.info('configuring cvmfs') 
   if 'local' in params:
     local_args = params['local']
     try:
       flocal = open(lfile, 'w')
     except:
       logger.error('could not open file: '+lfile+'')
-      return 
+      return
+    logger.info('writing file '+lfile+':') 
     for prop_name, value in local_args.iteritems():
+      logger.info(prop_name)
       if prop_name == 'repositories':
-        flocal.write('CVMFS_REPOSITORIES='+value+'\n')
+        val='CVMFS_REPOSITORIES='+value+'\n'
+        flocal.write(val)
+        logger.info(val)
       if prop_name == 'cache-base':
-        flocal.write('CVMFS_CACHE_BASE='+value+'\n')
+        val='CVMFS_CACHE_BASE='+value+'\n'
+        flocal.write(val)
+        logger.info(val)
       if prop_name == 'default-domain':
-        flocal.write('CVMFS_DEFAULT_DOMAIN='+value+'\n')
+        val='CVMFS_DEFAULT_DOMAIN='+value+'\n'
+        flocal.write(val)
+        logger.info(val)
       if prop_name == 'http-proxy':
-        flocal.write('CVMFS_HTTP_PROXY='+value+'\n')
+        val='CVMFS_HTTP_PROXY='+value+'\n'
+        flocal.write(val)
+        logger.info(val)
       if prop_name == 'quota-limit':
-        flocal.write('CVMFS_QUOTA_LIMIT='+str(value)+'\n')
+        val='CVMFS_QUOTA_LIMIT='+str(value)+'\n'
+        flocal.write(val)
+        logger.info(val)
         quota_aux_var = 0
       if prop_name == 'strict-mount':
-        flocal.write('CVMFS_STRICT_MOUNT=='+value+'\n')
+        val='CVMFS_STRICT_MOUNT='+value+'\n'
+        flocal.write(val)
+        logger.info(val)
       if prop_name == 'cms-local-site':
          try:
            cmslocal = open(cmsfile, 'w')

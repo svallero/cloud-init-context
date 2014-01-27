@@ -32,6 +32,14 @@ if 'proxy' not in file:
   except:
     logger.error('could not patch '+filename+'!')
 
+# Keep system up to date
+#logger.info('running yum update...')
+#try:
+#   cmd = ('yum -y update')
+#   DPopen(cmd, 'True')
+#except:
+#   logger.error('could not update yum!') 
+
 # Installing some package
 logger.info('installing basic tools...')
 try:
@@ -40,8 +48,12 @@ try:
 except:
    logger.error('could not install basic tools!')
 
+logger.info('cleaning-up yum cache...')
+cmd = ('yum clean all')
+DPopen(cmd, 'True')
+
 # Off iptables and selinux
-logger.info('stopping iptables')
+logger.info('stopping iptables...')
 try:
    cmd = ('/sbin/service iptables stop')
    DPopen(cmd, 'True')
@@ -62,5 +74,25 @@ try:
 except:
     logger.error('failed to stop selinux!')
 
-cmd = ('yum clean all')
-DPopen(cmd, 'True')
+#logger.info('removing ssh keys and restarting sshd daemon...')
+#try:
+#    cmd = ('rm -f /etc/ssh/ssh*key*')
+#    DPopen(cmd, 'True')
+#except:
+#    logger.error('could not remove /etc/ssh/ssh*key*!')
+#
+
+logger.info('running cloud-init ssh module...')
+try:
+   cmd = ('cloud-init single --name ssh')
+   DPopen(cmd, 'True')
+except:
+   logger.error('failed to run ssh module!')
+
+logger.info('starting sshd service...')
+try:
+    cmd = ('service sshd start')
+    DPopen(cmd, 'True')
+except:
+    logger.error('could not start sshd!')
+

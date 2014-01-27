@@ -30,7 +30,6 @@ rootdir = '/root/scripts'
 # Define logfile
 logname = '/var/log/cloud-init-ce_config.log'
 #logname = '/tmp/cloud-init-ce_config.log'
-#logname = '/tmp/cloud-init-ce_config.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
@@ -144,12 +143,6 @@ def handle_part(data,ctype,filename,payload):
   global ce_config_cfg 
   ce_config_cfg = cfg['ce_config'] 
   
-  #if 'name' in ce_config_cfg:
-  #   name = ce_config_cfg['name']
-  #   logger.info('configuring CE: '+name+'')
-  #else:
-  #   logger.error('CE name not specified!')
-  #   return 
 
   logger.info('determining the hostname...')
   

@@ -276,8 +276,6 @@ def handle_part(data,ctype,filename,payload):
         DPopen(cmd, 'True')   
      except:
         logger.error('failed to configure with yaim!') 
-        return
-        return 
 
   else:
      logger.error('unknown configuration type!'); 
