@@ -2,7 +2,7 @@
 # vim: syntax=yaml
 
 ############################################################################
-# This file reflects the contents of 'init.sh' for the ALICE CE            #
+# This file reflects the contents of 'init.sh' for the ALICE workernodes   #
 # The order of the configuration blocks does not matter here,              #
 # but it is important that you load the custom modules (part-handlers)     #
 # in the right order                                                       #
@@ -36,45 +36,51 @@
 #     - 'cc_zabbix.py'
 #     - 'cc_addons.py'
 #     - 'cc_grid_config.py'
-
-# CONFIGURE PUBLIC NETWORK #################################################
-# set the hostname and configure eth1: mac, ip, netmask and gateway.       #
-# The ip is specified in the flavour because it's needed by ON to setup    #
-# the vm in the public network.                                            #
-############################################################################
-pub_net:
-  name: 't2-ce-01.to.infn.it' 
-  #name: 't2-dom0-02.to.infn.it' # compulsory in this block... 
-  wan_mask: '255.255.255.192'
-  gateway: '193.206.184.62'
-
+ 
 # CONFIGURE LOCAL FILESYSTEM ###############################################
 # partitions the ephemeral disk you attach to the VM                       #
 ############################################################################
 
 localfs:
+   #extdisk: '/dev/hdb' # this is for SLC5
    parts:
       # below percent of VG 
-      home: 84
-      tmp: 3
+      cvmfs: 17
+      cvmfs_mount: '/var/lib/cvmfs'
+      home: 58
+      tmp: 8
       # below percent of FREE 
       swap: 100
 
-
-# ADD CERTIFICATE ##########################################################
-# The certificate and private key are always embedded in the MIME,         # 
-# either from local file or from repo (put a "+" before the file name)     #
+# CONFIGURE CVMFS ##########################################################
+# packages are downloaded from 'https://ecsft.cern.ch/dist/cvmfs'          #
 ############################################################################
-# also set the hostname here, since it is needed by folowing modules
-# to configure things properly (i.e. torque server, maui etc...)
 
-certificate:
-  #name: 't2-ce-01.to.infn.it' # not needed if already specified in pub_net 
-  embedfiles: 
-    - 'sensitivedata_CE/t2-ce-01-12062013-cert.pem'
-    - 'sensitivedata_CE/t2-ce-01-12062013-key.pem'
-    #- 'sensitivedata_CE/t2-dom0-02-12072013-cert.pem'
-    #- 'sensitivedata_CE/t2-dom0-02-12072013-key.pem'
+cvmfs:
+  install: true
+  version: 2.1.15
+  local:
+    repositories: 'alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch,belle.cern.ch,lhcb.cern.ch' 
+    http-proxy: http://t2-squid-01.to.infn.it:3128
+    cache-base: /var/lib/cvmfs
+    quota-limit: 18000
+    strict-mount: 'yes'
+
+# MOUNT SHARED-SOFTWARE AREA VIA LUSTRE ####################################
+# sarebbe bene dare un nome piu' semplice agli rpm, tipo 'release'...      #
+# e metterli sul server http (x ora srm-dom0)                              #
+# In realta' bisognerebbe aggiornare il server Lustre e tutto questo trigo #
+# dei moduli da ricompilare against il kernel dovrebbe sparire!            #
+############################################################################
+
+sharedsw:
+  lustre-master: 192.168.7.101
+  filesystem: expsoft
+  mount-point: /opt/exp_software 
+  rpms:  
+    repository: "tmon.to.infn.it/lus3/down/1.8.8-x86_64/pa-cli"
+    client: lustre-client-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm
+    modules: lustre-client-modules-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm
 
 # INSTALL GRID SOFTWARE ####################################################
 # i.e. Torque client and CAs						   # 
@@ -89,19 +95,7 @@ igiinstall:
     - 'http://repo-pd.italiangrid.it/mrepo/repos/egi-trustanchors.repo'
   packages:
     - ca-policy-egi-core
-    - xml-commons-apis 
-    - emi-cream-ce 
-    - emi-torque-server 
-    - emi-torque-utils    
-
-
-# CONFIGURE GRID ###########################################################
-# If this config-file does not contain a section named 'grid_config',      #
-# it is equivalent to 'SKIP_GRID=1' in the old init.sh                     #
-############################################################################
-
-grid_config:
-  install_munge: True
+    - igi-wn_torque_noafs     
 
 # PREPARE AND RUN IGI-YAIM #################################################
 # (qui Grid-Prod.tar.gz sparisce ed i files sono embedded uno per uno nel  #
@@ -125,83 +119,90 @@ grid_config:
 ############################################################################
 
 igiyaim:
-  type: 'ce'
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
+  #tarfile: 'Grid-Prod.tar.gz'
   files:
     - 'ig-groups.conf'
     - 'ig-users.conf'
     - 'wn-list.conf' 
     - 'glite-bdii_site'
     - 'vo-belle'
+    - 'vo-igi.italiangrid.it'
+    - 'vo-superbvo.org'
     - 'vo-vo.cta.in2p3.fr'
     - 'vo-vo.panda.gsi.de'
   embedfiles: 
-    - 'sensitivedata_CE/site-info.def'
-    - 'sensitivedata_CE/glite-creamce'
+    - 'sensitivedata_WN/site-info.def'
+    - 'sensitivedata_WN/glite-creamce'
 
-# CONFIGURE CE #############################################################
-# create and configure user qmanager and add useful scripts                # 
-# Files containing sensitive data should always be 'embedded', either from #
-# local or repo ('+').                                                     #
-# Files will go in destination directories as follows:                     #
-# --- 'scripts' -> /root/scripts                                           #
+# ADD SSH_KNOWN_HOSTS ######################################################
+# File "ssh_known_hosts" is always embedded in the MIME,                   # 
+# either from local file or from repo (put a "+" before the file name)     #
 ############################################################################
-# some clean-up of useless files is needed TODO
-ce_config:
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
-  scripts: # files are fetched from repo at boot
-  #scripts_embedfiles: # if you want to embed the files ('+ if embed from repo')
-    - 'scripts/checknumprocs.sh'
-    - 'scripts/cpu-durata.sh'
-    - 'scripts/creanodo.sh'
-    - 'scripts/lanziajob.sh'
-    - 'scripts/lookatprocnum.awk'
-    - 'scripts/mettioffline.sh'
-    - 'scripts/mod-parseQstat.pl'
-    - 'scripts/parseQstat.pl' 
-    - 'scripts/prio.sh' 
-    - 'scripts/pulisci.sh' 
-    - 'scripts/qdel-waiting-jobs.sh' 
-    - 'scripts/quanteslot.sh' 
-    - 'scripts/quantifile.sh' 
-    - 'scripts/quantijob.sh' 
-    - 'scripts/runParseQstat.sh' 
-    - 'scripts/tunemaui.sh' 
-    - 'scripts/wall-durata.sh' 
-  keys_embedfiles:
-    - 'sensitivedata_CE/keys/authorized_keys'
-    - 'sensitivedata_CE/keys/id_rsa-create-node.pub'
-    - 'sensitivedata_CE/keys/id_rsa-delete-node.pub'
-    - 'sensitivedata_CE/keys/id_rsa-offline-node.pub'
-    - 'sensitivedata_CE/keys/id_rsa-pbsnodes.pub'
-    - 'sensitivedata_CE/keys/id_rsa-create-node'
-    - 'sensitivedata_CE/keys/id_rsa-delete-node'
-    - 'sensitivedata_CE/keys/id_rsa-offline-node'
-    - 'sensitivedata_CE/keys/id_rsa-pbsnodes'
-  cloudities:
-    - 'cloudities/custom-cpuinfo.sh' 
-    - 'cloudities/onevm-addr.rb' 
-    - 'cloudities/onevm-console.rb' 
-    - 'cloudities/onevm-wn-drain-ric.rb' 
-    - 'cloudities/onevm-wn-drain.rb' 
-    - 'cloudities/onevnet-new-helper.sh' 
-    - 'cloudities/onevnet-new.rb' 
-    - 'cloudities/pbsinfo.rb' 
-    - 'cloudities/scpWave.py' 
-    - 'cloudities/stage-one.sh' 
-    - 'cloudities/xpdsh.rb'
-  cloudities_embedfiles:
-    - 'sensitivedata_CE/cloudities/one-cache-sync.rb' 
-  servercontext:
-    - 'servercontext/create-node'
-    - 'servercontext/delete-node'    
-    - 'servercontext/delete-offline-node'    
-    - 'servercontext/offline-node'    
-    - 'servercontext/puppetca-clean-caller'    
-    - 'servercontext/ssh-hosts-keys'    
-  mauicfg: 
-    - 'maui.cfg'
+
+knownhosts:
+# repo: 'http://srm-dom0.to.infn.it/test'
+  embedfiles: 
+    - 'sensitivedata_WN/ssh_known_hosts'
+
+# PUPPET ###################################################################
+# il modulo sembra funzionare, ma si pianta in                             #
+# 'did not receive certificate'.                                           #
+# The set of options below means:                                          # 
+# apply Puppet configuration synchronously, and exit on failure.           #
+# Note that the configuration is also applied when first starting the      # 
+# Puppet agent in background, but we want it to happen synchronously and   # 
+# to fail with a detailed message upon failure                             # 
+############################################################################
+
+puppetconfig:
+  version: '2.6.12-1'
+  repository: 'https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-7.noarch.rpm'
+# repo: 'http://srm-dom0.to.infn.it/test/production'
+  embedfiles: 
+    - 'sensitivedata_WN/puppetremote-rsa'
+  master: t2-se-00.to.infn.it 
+  options:
+    - 'onetime'
+    - 'verbose'
+    - 'ignorecache'
+    - 'no-daemonize'
+    - 'no-usecacheonfailure'
+    - 'show_diff'
+    - 'waitforcert=30'
+
+# INSTALL ZABBIX ###########################################################
+# I do not see any zabbix configuration here...                            #
+############################################################################
+
+zabbix: true
+
+# EXTRA PACKAGES ###########################################################
+# specify repo for yum option --enablerepo                                 #
+# if 'none' only repos already enabled are considered                      #
+############################################################################
+
+addons:
+  epel:
+    - 'tcsh'
+    - 'bind-utils'
+    - 'compat-libgfortran-41'
+    - 'gcc-gfortran' 
+    - 'libXpm'
+
+# CONFIGURE GRID ###########################################################
+# If this config-file does not contain a section named 'grid_config',      #
+# it is equivalent to 'SKIP_GRID=1' in the old init.sh                     #
+############################################################################
+
+grid_config:
+# repo: 'http://srm-dom0.to.infn.it/test/production'
+  embedfiles: 
+    - 'sensitivedata_WN/createhost-rsa'
+    - 'sensitivedata_WN/munge.key'
+  ce: 't2-ce-01.to.infn.it'
+
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 
 # For instance the script to produce a summary logfile from the single     #
