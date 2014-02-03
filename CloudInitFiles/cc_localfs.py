@@ -113,10 +113,15 @@ def handle_part(data,ctype,filename,payload):
   if 'localfs' not in cfg:
     logger.error('localfs configuration was not found!')
     return
-  
+
+
   logger.info('ready to setup localfs...')
   localfs_cfg = cfg['localfs']
   logger.info(' configuring localfs...')
+  
+  # Test by SV 
+  #logger.error('*** SARA: test, ricordati di toglierlo!') 
+  # ends here
 
   # Name of volume group
   Vg = 'attached'
@@ -237,5 +242,4 @@ def handle_part(data,ctype,filename,payload):
            DPopen(cmd,'True') 
          except:
            logger.error('ERROR: unable to add to fstab!')
-  
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))

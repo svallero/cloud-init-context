@@ -270,7 +270,7 @@ def handle_part(data,ctype,filename,payload):
   # setting proper permissions
   logger.info('setting proper permissions to /opt/cloudities/server-context...')
   try:
-    cmd = ('chmod -R 755 /opt/cloudities/server-context') 
+    cmd = ('chmod -R 755 /opt/cloudities/') 
     DPopen(cmd, 'True')
   except:
      logger.error('could not change permissions!')

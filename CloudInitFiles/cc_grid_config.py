@@ -40,20 +40,21 @@ def list_types():
 ########################
 
 def ConfigAddNode(ce, NCores):
-  logger.info('fetching createhost-rsa...')
-  filename = 'createhost-rsa'
-  val = grid_cfg[filename]
-  try:
-    get_embedded(filename, val, '/tmp') 
-    cmd = ('chmod 0400 /tmp/'+filename+'')
-    DPopen(cmd, 'True')
-  except:
-    logger.error('could not retrieve createhost-rsa file!')
-    return 
+  logger.info('fetching createhost-rsa and offlinehost-rsa...')
+  filenames = ['createhost-rsa','offlinehost-rsa']
+  for filename in filenames:
+    val = grid_cfg[filename]
+    try:
+      get_embedded(filename, val, '/tmp') 
+      cmd = ('chmod 0400 /tmp/'+filename+'')
+      DPopen(cmd, 'True')
+    except:
+      logger.error('could not retrieve '+filename+' file!')
+      return 
   
   # 'return' for sandbox tests:
   #return
-
+  filename = 'createhost-rsa'
   logger.info('invoking remote addition by performing ssh...')    
   try:
     cmd = ('echo '+str(NCores)+' | ssh qmanager@'+ce+' -i /tmp/'+filename+' -o StrictHostKeyChecking=yes')

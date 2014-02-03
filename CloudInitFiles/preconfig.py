@@ -17,20 +17,20 @@ response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py'
 exec (response.read())
 
 # Set proxy for yum
-proxy='https://proxy2.to.infn.it:3128'
-filename = '/etc/yum.conf' 
-file = open(filename) 
-if 'proxy' not in file:
-  logger.info('adding proxy to yum configuration...')
-  try:
-    # write yum.conf
-    cmd = ('echo "proxy='+proxy+'" >> '+filename+'')
-    DPopen(cmd,'True')
-    # global setting
-    cmd = ('export https_proxy='+proxy+'')
-    DPopen(cmd,'True')
-  except:
-    logger.error('could not patch '+filename+'!')
+#proxy='https://proxy2.to.infn.it:3128'
+#filename = '/etc/yum.conf' 
+#file = open(filename) 
+#if 'proxy' not in file:
+#  logger.info('adding proxy to yum configuration...')
+#  try:
+#    # write yum.conf
+#    cmd = ('echo "proxy='+proxy+'" >> '+filename+'')
+#    DPopen(cmd,'True')
+#    # global setting
+#    cmd = ('export https_proxy='+proxy+'')
+#    DPopen(cmd,'True')
+#  except:
+#    logger.error('could not patch '+filename+'!')
 
 # Keep system up to date
 #logger.info('running yum update...')

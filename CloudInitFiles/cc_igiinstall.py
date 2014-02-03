@@ -70,7 +70,8 @@ def handle_part(data,ctype,filename,payload):
   
   # define some default
   # ...
-                              
+  cmd = ('yum clean all')                             
+  DPopen(cmd, 'True') 
   if 'repos' in igiinstall_cfg:
     repos = igiinstall_cfg['repos']
     for rep in repos:
