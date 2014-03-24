@@ -38,7 +38,7 @@ for file in files.splitlines():
            logger.error(file)
            errors  = True
            goodnode = False
-           break 
+           #break 
          elif 'munge' in line:
            # in case of the munge.key error I want to skip also 
            # the following line

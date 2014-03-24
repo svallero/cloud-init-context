@@ -208,15 +208,14 @@ def handle_part(data,ctype,filename,payload):
      #  return
 
      logger.info('go yaim...')
-     try :
-        cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
-        DPopen(cmd, 'True')
-        #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
-        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
-        DPopen(cmd, 'True')
-        logger.info('done!')
-     except:
-        logger.info('done: some errors were there but they can probably be ignored...') 
+     #try :
+     cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
+     DPopen(cmd, 'True')
+     #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
+     cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
+     DPopen(cmd, 'True')
+     #except:
+       #logger.error('failed to configure with yaim.') 
        #return
 
   # for ce
@@ -277,8 +276,26 @@ def handle_part(data,ctype,filename,payload):
         DPopen(cmd, 'True')   
      except:
         logger.error('failed to configure with yaim!') 
-
+  #SB: This is for myproxy. Maybe it would be better to make a catchall default 
+  #SB: that just passes the type to yaim and let it handle unknown types?       
+  #SV: yes
+  #elif type == 'PX':
+  #   try:
+  #      logger.info('go yaim...')
+  #      cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n PX  2>&1 ') 
+  #      DPopen(cmd, 'True')   
+  #   except:
+  #      logger.error('failed to configure with yaim!') 
   else:
-     logger.error('unknown configuration type!'); 
+     try:
+        logger.info('go yaim...')
+        logger.info('configuration type: '+type+'')
+        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n '+type+'  2>&1 ') 
+        DPopen(cmd, 'True')   
+     except:
+        logger.error('failed to configure with yaim!') 
+
+  #else:
+  #   logger.error('unknown configuration type!'); 
   
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       
