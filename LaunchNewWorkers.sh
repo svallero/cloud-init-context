@@ -6,7 +6,8 @@
 # mailto: svallero@to.infn.it
 
 # Configuration goes here: ########
-number=3
+##number=2
+number=1
 slots=6 # can be 6 or 8
 config_file="ConfigureWNreal.ccfg"
 list_modules="IncludeModules.txt"
@@ -53,7 +54,8 @@ do
   a=($i)
   id_on=${a[1]}
   ip_last=`echo ${a[3]} | cut -c 11-13`
-  echo "$id_on t2-vwn-$ip_last.to.infn.it" >> $outfile
+  ip_last_z=`printf %03d $ip_last`
+  echo "$id_on t2-vwn-$ip_last_z.to.infn.it" >> $outfile
 done
  
 echo -e "\e[32mList of new instances and hostnames written in:\e[0m"

@@ -4,7 +4,7 @@
 # - connect to each worker and check for CloudInit summary file
 # - get list of errors from summary file
 # - chech if node is in PBS and in which state
-# - mark for deletion nodes which finished the context with erors, 
+# - mark for deletion nodes which finished the context with errors, 
 #   which should be "offline" in PBS (output written in "DeleteWorkers.log")
 # - print a summary table 
 
@@ -86,7 +86,9 @@ for line in infile.readlines():
         if 'No such file or directory' in errdata:
            finished='False'
            print 'Not found yet.'
-        else:
+        elif 'Warning: Permanently added' in errdata:
+           finished='True'
+        else: 
            # some other error, print it on screen
            finished='?'
            print colored(errdata,'red')
@@ -117,8 +119,8 @@ for line in infile.readlines():
      if finished=='True' and isok=='False': # contex finished with errors 
         delete='True' # it should be deleted anyway!
         if inpbs == 'True': # if added to PBS
-           if 'offline' in val: # it should be offline
-              print colored('Node is up with errors (offline in PBS).','red')
+           if 'offline' in val or 'down' in val: # it should be offline
+              print colored('Node is up with errors (offline/down in PBS).','red')
               print colored('It should be excluded from PBS and shutdown.','red')
            else:
               delete = 'FATAL'

@@ -35,3 +35,6 @@ CloudInitFiles/WN-test/
 CloudInitFiles/cloud-timings.log
 CloudInitFiles/tmp.txt
 .gitignore
+oldCEfiles/
+scripts_sara/
+userdataWNSara.txt.gz

@@ -191,6 +191,7 @@ addons:
     - 'compat-libgfortran-41'
     - 'gcc-gfortran' 
     - 'libXpm'
+    - 'compat-db43'
 
 # CONFIGURE GRID ###########################################################
 # If this config-file does not contain a section named 'grid_config',      #
