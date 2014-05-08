@@ -73,7 +73,7 @@ for line in infile.readlines():
    val='-'
    delete='False'
   
-   if 'CET' not in line: # skip date
+   if 'CE' not in line: # skip date
      on_id,hostname=line.split()
      print colored('Connecting to node '+hostname+'','green')
      print colored('Removing known_hosts entry...','yellow')
