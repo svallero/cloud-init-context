@@ -104,6 +104,8 @@ def get_embedded(embed_block, repo):
     dest = '/opt/cloudities/server-context'
   elif embed_block.startswith('maui'):
     dest = '/var/spool/maui'
+  elif embed_block.startswith('dgas'):
+    dest = '/etc/dgas'
   
   logger.info('moving file into place...')
   try:
@@ -359,4 +361,40 @@ def handle_part(data,ctype,filename,payload):
     logger.error('could not disable queues!')
     return  
 
+  # DGAS
+  logger.info('installing DGAS service...')
+  logger.info('installing custom packages...')
+  if 'dgas_packages' in ce_config_cfg:
+    packages = ce_config_cfg['dgas_packages']
+    for pack in packages:
+      try:
+        cmd = ('yum -y --showduplicates --enablerepo=epel install '+pack+'')
+        DPopen(shlex.split(cmd), 'False')
+      except:
+        logger.error('could not install package '+pack+'')
+        return
+    logger.info('getting configuration file...')
+    if 'dgascfg' in ce_config_cfg:
+       for df in ce_config_cfg['dgascfg']:
+          get_embedded(df, repo) 
+    else:
+       logger.error('configuration file not specified!')
+       return
+    logger.info('starting DGAS services...') 
+    try:
+       cmd = ('service dgas-pushd start')   
+       #DPopen(cmd, 'True')
+    except:
+       logger.error('could not start dgas-pushd!')
+    try:
+       cmd = ('service dgas-urcollector start')   
+       #DPopen(cmd, 'True')
+    except:
+       logger.error('could not start dgas-urcollector!')
+  
+  # Clean yum cache
+  logger.info('cleaning-up yum cache...')
+  os.system('yum clean all')
+  
+  
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

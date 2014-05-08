@@ -1,0 +1,14 @@
+###################
+# vo.panda.gsi.de #
+###################
+SW_DIR=/opt/exp_software/panda
+DEFAULT_SE="$SE_HOST"
+STORAGE_DIR="$CLASSIC_STORAGE_DIR/panda"
+USER_HOME_PREFIX="/home"
+VOMS_SERVERS="'vomss://grid12.lal.in2p3.fr:8443/voms/vo.panda.gsi.de?/vo.panda.gsi.de'"
+VOMSES="'vo.panda.gsi.de grid12.lal.in2p3.fr 20022 /O=GRID-FR/C=FR/O=CNRS/OU=LAL/CN=grid12.lal.in2p3.fr vo.panda.gsi.de'"
+VOMS_CA_DN="'/C=FR/O=CNRS/CN=GRID2-FR'"
+LB_HOSTS="grid09.lal.in2p3.fr"
+WMS_HOSTS="ipngrid28.in2p3.fr"
+MAP_WILDCARDS="yes"
+
