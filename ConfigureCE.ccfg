@@ -42,11 +42,11 @@
 # The ip is specified in the flavour because it's needed by ON to setup    #
 # the vm in the public network.                                            #
 ############################################################################
-#pub_net:
-#  name: 't2-ce-01.to.infn.it' 
-#  #name: 't2-dom0-02.to.infn.it' # compulsory in this block... 
-#  wan_mask: '255.255.255.192'
-#  gateway: '193.206.184.62'
+pub_net:
+  name: 't2-ce-01.to.infn.it' 
+  #name: 't2-dom0-02.to.infn.it' # compulsory in this block... 
+  wan_mask: '255.255.255.192'
+  gateway: '193.206.184.62'
 
 # CONFIGURE LOCAL FILESYSTEM ###############################################
 # partitions the ephemeral disk you attach to the VM                       #
@@ -68,13 +68,13 @@ localfs:
 # also set the hostname here, since it is needed by folowing modules
 # to configure things properly (i.e. torque server, maui etc...)
 
-#certificate:
-#  #name: 't2-ce-01.to.infn.it' # not needed if already specified in pub_net 
-#  embedfiles: 
-#    - 'sensitivedata_CE/t2-ce-01-12062013-cert.pem'
-#    - 'sensitivedata_CE/t2-ce-01-12062013-key.pem'
-#    #- 'sensitivedata_CE/t2-dom0-02-12072013-cert.pem'
-#    #- 'sensitivedata_CE/t2-dom0-02-12072013-key.pem'
+certificate:
+  #name: 't2-ce-01.to.infn.it' # not needed if already specified in pub_net 
+  embedfiles: 
+    - 'sensitivedata_CE/t2-ce-01-12062013-cert.pem'
+    - 'sensitivedata_CE/t2-ce-01-12062013-key.pem'
+#    - 'sensitivedata_CE/t2-dom0-02-12072013-cert.pem'
+#    - 'sensitivedata_CE/t2-dom0-02-12072013-key.pem'
 
 # INSTALL GRID SOFTWARE ####################################################
 # i.e. Torque client and CAs						   # 
@@ -84,7 +84,8 @@ localfs:
 
 igiinstall:
   repos:
-    - 'http://emisoft.web.cern.ch/emisoft/dist/EMI/2/sl6/x86_64/base/emi-release-2.0.0-1.sl6.noarch.rpm'
+    #- 'http://emisoft.web.cern.ch/emisoft/dist/EMI/2/sl6/x86_64/base/emi-release-2.0.0-1.sl6.noarch.rpm'
+    - 'http://emisoft.web.cern.ch/emisoft/dist/EMI/3/sl6/x86_64/base/emi-release-3.0.0-2.el6.noarch.rpm'
     - 'http://repo-pd.italiangrid.it/mrepo/repos/igi/sl6/x86_64/igi-emi2.repo'
     - 'http://repo-pd.italiangrid.it/mrepo/repos/egi-trustanchors.repo'
   packages:

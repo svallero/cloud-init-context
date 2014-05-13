@@ -8,6 +8,7 @@ http:srm-dom0.to.infn.it/CloudInitFiles/cc_sharedsw.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_igiinstall.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_igiyaim.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_ce_config.py 
+http:srm-dom0.to.infn.it/CloudInitFiles/cc_se_config.py 
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_argus_config.py 
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_knownhosts.py
 http:srm-dom0.to.infn.it/CloudInitFiles/cc_puppetconfig.py

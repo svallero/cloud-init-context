@@ -37,7 +37,18 @@
 #     - 'cc_addons.py'
 #     - 'cc_grid_config.py'
  
-hostname: 't2-dom0-02.to.infn.it'
+# CONFIGURE PUBLIC NETWORK #################################################
+# set the hostname and configure eth1: mac, ip, netmask and gateway.       #
+# The ip is specified in the flavour because it's needed by ON to setup    #
+# the vm in the public network.                                            #
+############################################################################
+pub_net:
+  name: 'se-srm-00.to.infn.it' 
+  #name: 't2-dom0-02.to.infn.it' # compulsory in this block... 
+  wan_mask: '255.255.255.192'
+  #gateway: '193.206.184.62'
+  gateway: '193.205.66.254'
+
 
 # CONFIGURE LOCAL FILESYSTEM ###############################################
 # partitions the ephemeral disk you attach to the VM                       #
@@ -57,10 +68,10 @@ sharedsw:
   filesystem: gense
   mount-point: /mnt/data 
   rpms:  
-    repo: tmon.to.infn.it/lus3/down/1.8.8-x86_64/pa-cli
+    repository: 'tmon.to.infn.it/lus3/down/1.8.8-x86_64/pa-cli'
     # older modules than WN since older base image (IMAGE_ID=276, like CE)
-    client: lustre-client-1.8.9-2.6.32_358.2.1.el6.x86_64.x86_64.rpm 
-    modules: lustre-client-modules-1.8.9-2.6.32_358.2.1.el6.x86_64.x86_64.rpm
+    client: 'lustre-client-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm' 
+    modules: 'lustre-client-modules-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm'
 
 # INSTALL GRID SOFTWARE ####################################################
 # i.e. Torque client and CAs						   # 
@@ -70,7 +81,7 @@ sharedsw:
 
 igiinstall:
   repos:
-    - 'http://emisoft.web.cern.ch/emisoft/dist/EMI/2/sl6/x86_64/base/emi-release-2.0.0-1.sl6.noarch.rpm'
+    - 'http://emisoft.web.cern.ch/emisoft/dist/EMI/3/sl6/x86_64/base/emi-release-3.0.0-2.el6.noarch.rpm'
     - 'http://repo-pd.italiangrid.it/mrepo/repos/igi/sl6/x86_64/igi-emi2.repo'
     - 'http://repo-pd.italiangrid.it/mrepo/repos/egi-trustanchors.repo'
   packages:
@@ -87,10 +98,10 @@ igiinstall:
 
 certificate:
   embedfiles: 
-    #- 'sensitivedata_SE/hostcert.pem'
-    #- 'sensitivedata_SE/hostkey.pem'
-    - 'sensitivedata_SE/t2-dom0-02-12072013-cert.pem'
-    - 'sensitivedata_SE/t2-dom0-02-12072013-key.pem'
+    - 'sensitivedata_SE/se-srm-00-16092013-cert.pem'
+    - 'sensitivedata_SE/se-srm-00-16092013-key.pem'
+    #- 'sensitivedata_SE/t2-dom0-02-12072013-cert.pem'
+    #- 'sensitivedata_SE/t2-dom0-02-12072013-key.pem'
 
 # CONFIGURE GRID ###########################################################
 # If this config-file does not contain a section named 'grid_config',      #
@@ -147,17 +158,13 @@ igiyaim:
 
 
 # CONFIGURE SE #############################################################
-# create and configure user qmanager and add useful scripts                # 
-# Files containing sensitive data should always be 'embedded', either from #
-# local or repo ('+').                                                     #
-# Files will go in destination directories as follows:                     #
-# --- 'scripts' -> /root/scripts                                           #
+# link to proper mysql-connector-java                                      #
 ############################################################################
 
-ce_config:
-  #name: 't2-ce-01.to.infn.it' 
-  name: 't2-dom0-02.to.infn.it' 
-  wan_mask: '255.255.255.128'
+se_config:
+  name: 'se-srm-00.to.infn.it' 
+  #name: 't2-dom0-02.to.infn.it' 
+  javamc: 'mysql-connector-java-5.1.17.jar'
 
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 
