@@ -244,38 +244,28 @@ def handle_part(data,ctype,filename,payload):
   # for se
   elif type == 'se':
      logger.info('configuring SE...')
-     #logger.info('stopping iptables') 
-     #try:
-     #   cmd = ('/sbin/service iptables stop')
-     #   DPopen(cmd, 'True')   
-     #except:
-     #   logger.error('could not stop iptables!')
-     #logger.info('chkconfig iptables off...') 
-     #try:
-     #   cmd = ('/sbin/chkconfig iptables off')
-     #   DPopen(cmd, 'True')   
-     #except:
-     #   logger.error('could not chkconfig iptables off!')
-     #logger.info('stopping selinux...')
-     #try:
-     #  cmd = ('/usr/sbin/setenforce 0')
-     #  DPopen(shlex.split(cmd), 'False')
-     #except:
-     #  logger.error('failed to stop selinux!')
-     #  return 
-        
      logger.info('applying some patch...')
      try:
         cmd = ('sed -i -e "s/config_ntp//" /opt/glite/yaim/node-info.d/*') 
         DPopen(cmd, 'True')   
      except:
         logger.error('failed to patch files in /opt/glite/yaim/node-info.d/!')  
+
+     #logger.info('sourcing java home path in /tmp/je.sh (dirty hack)...')
+     #try:
+     #   cmd = ('source /tmp/je.sh') 
+     #   DPopen(cmd, 'True')   
+     #except:
+     #   logger.error('failed to source /tmp/je.sh!')  
+
      try:
         logger.info('go yaim...')
-        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n se_storm_backend -n se_storm_frontend -n se_storm_gridftp 2>&1 ') 
+        #cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n se_storm_backend -n se_storm_frontend -n se_storm_gridftp 2>&1') 
+        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n se_storm_backend -n se_storm_frontend -n se_storm_gridftp 2>&1 > /var/log/yaim.log') 
         DPopen(cmd, 'True')   
      except:
         logger.error('failed to configure with yaim!') 
+
   #SB: This is for myproxy. Maybe it would be better to make a catchall default 
   #SB: that just passes the type to yaim and let it handle unknown types?       
   #SV: yes

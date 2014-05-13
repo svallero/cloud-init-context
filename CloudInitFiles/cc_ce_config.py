@@ -265,7 +265,7 @@ def handle_part(data,ctype,filename,payload):
         return
       for file in ce_config_cfg[block]:
         get_embedded(file, repo) 
-    elif block != 'name' and block != 'repo' and block != 'wan_mask' and block != 'gateway':
+    elif block != 'name' and block != 'repo' and block != 'wan_mask' and block != 'gateway' and 'dgas' not in block:
       logger.info('reading embedded files...')
       get_embedded(block, '') 
 
@@ -350,7 +350,7 @@ def handle_part(data,ctype,filename,payload):
     DPopen(cmd, 'True')
   except:
     logger.error('could not start maui!')
-    return
+    #return New by SV
 
   # disable queues
   logger.info('disabling all the queues but "cert" at the beginning...') 
@@ -383,12 +383,12 @@ def handle_part(data,ctype,filename,payload):
     logger.info('starting DGAS services...') 
     try:
        cmd = ('service dgas-pushd start')   
-       #DPopen(cmd, 'True')
+       DPopen(cmd, 'True')
     except:
        logger.error('could not start dgas-pushd!')
     try:
        cmd = ('service dgas-urcollector start')   
-       #DPopen(cmd, 'True')
+       DPopen(cmd, 'True')
     except:
        logger.error('could not start dgas-urcollector!')
   

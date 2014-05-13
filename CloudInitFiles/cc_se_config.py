@@ -79,66 +79,22 @@ def handle_part(data,ctype,filename,payload):
      logger.error('SE name not specified!')
      return 
 
-  # configure public network
-  logger.info('configuring public network...')
-  # TODO change back to eth1!!!
-  cmd = ('/sbin/ifconfig eth1 | grep "inet addr" | awk -F: \'{print $2}\' | awk \'{print $1}\'')
-  status,ip = commands.getstatusoutput(cmd)
-  if not ip:
-     logger.error('public ip not found!')
-     return
-  if not status:
-     logger.info('found public ip: '+ip+'')
-     mac='02:00'
-     for block in str(ip).split('.'):
-        hx = hex(int(block)).upper()[2:].zfill(2)
-        mac+=(':'+hx+'')
-     logger.info('assigned mac address: '+mac+'')
-  else:
-     logger.error('could not determine public ip!')
-
-  wan_mask = '255.255.255.192'  
-  if 'wan_mask' in se_config_cfg:
-     wan_mask = se_config_cfg['wan_mask']
-     logger.info('assigning wan mask: '+wan_mask+'')
-  
-  os.environ['WAN_MASK'] = wan_mask
-  os.environ['WAN_MAC'] = mac
-  os.environ['WAN_IP'] = ip
-  cmd = ('''cat > /etc/sysconfig/network-scripts/ifcfg-eth1 << EOF
-DEVICE=eth1
-NETMASK=$WAN_MASK
-HWADDR=$WAN_MAC
-BOOTPROTO=static
-IPADDR=$WAN_IP
-ONBOOT=yes
-GATEWAY=193.205.66.254
-EOF''')
-  try:
-    DPopen(cmd, 'True')
-  except:
-    loger.error('could not write file: /etc/sysconfig/network-scripts/ifcfg-eth1 !')
-
-  try:
-    cmd = ('/sbin/service network restart')
-    DPopen(cmd, 'True')
-  except:
-    loger.error('could not restart network !')
-    return 
-
   logger.info('linking to proper mysql-connector-java.jar')
-  # TODO: do not hardcode versions...
+  if 'javamc' in se_config_cfg:
+     javamc = se_config_cfg['javamc']
+  else:
+     javamc = 'mysql-connector-java-5.1.17.jar'
   try:
-    cmd = ('rm -f /usr/share/java/storm-backend-server/mysql-connector-java-5.1.12.jar')  
+    cmd = ('rm -f /usr/share/java/storm-backend-server/mysql-connector-java-*.jar')  
     DPopen(cmd, 'True')
   except:
-    logger.error('could not remove /usr/share/java/storm-backend-server/mysql-connector-java-5.1.12.jar')
+    logger.error('could not remove /usr/share/java/storm-backend-server/mysql-connector-java-*.jar')
     return
   try:
-    cmd = ('ln -s /usr/share/java/mysql-connector-java-5.1.17.jar /usr/share/java/storm-backend-server/mysql-connector-java-5.1.17.jar') 
+    cmd = ('ln -s /usr/share/java/'+javamc+' /usr/share/java/storm-backend-server/'+javamc+'') 
     DPopen(cmd, 'True')
   except:
-    logger.error('could not link /usr/share/java/mysql-connector-java-5.1.17.jar to /usr/share/java/storm-backend-server/!')
+    logger.error('could not link /usr/share/java/'+javamc+' to /usr/share/java/storm-backend-server/!')
     return
 
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

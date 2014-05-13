@@ -25,6 +25,7 @@ import ntpath
 
 # Define logfile
 logname = '/var/log/cloud-init-igiinstall.log'
+#logname = './cloud-init-igiinstall.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
@@ -115,8 +116,10 @@ def handle_part(data,ctype,filename,payload):
         #  cmd = ('yum -y install '+pack+'')
         if 'java' in pack:
           try:
-            cmd = ('export JAVA_HOME=/usr/lib/jvm/jre-1.7.0-openjdk.x86_64')
-            DPopen(shlex.split(cmd), 'False')
+            javaname = pack.replace('java','jre')
+            #cmd = ('echo "export JAVA_HOME=/usr/lib/jvm/'+javaname+'" > /tmp/je.sh')
+            #DPopen(cmd, 'True')
+            os.environ["JAVA_HOME"] = '/usr/lib/jvm/'+javaname+''
           except:  
             logger.error('could not export java path!') 
             return

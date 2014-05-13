@@ -35,10 +35,11 @@ for file in files.splitlines():
          # 'merr' comes from puppet, for some reason the exception 
          # is not caught by python 
          if not any(e in line for e in exceptions):
-           logger.error(file)
+           if errors == False:
+              logger.error(file)
            errors  = True
            goodnode = False
-           #break 
+           break 
          elif 'munge' in line:
            # in case of the munge.key error I want to skip also 
            # the following line
