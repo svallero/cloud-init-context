@@ -1,9 +1,8 @@
-sensitivedata_WN
-sensitivedata_CE
-sensitivedata_SE
-userdata.txt.gz
-userdataWN.txt.gz
-userdataCE.txt.gz
+*.log
+*.save
+sensitivedata_*
+userdata*.txt.gz
+userdata*.txt
 CloudInitFiles/test.py
 CloudInitFiles/tmp.conf
 CloudInitFiles/test.log
@@ -18,7 +17,6 @@ test.py
 tmp/
 userdata.txt
 servercontext
-test.log
 test.txt
 production
 Grid-Prod.tar*
@@ -27,9 +25,6 @@ ConfigureWN_snapshot.ccfg
 ConfigureWNreal.ccfg
 ListWN.txt
 ListWNreal.txt
-userdataWN.txt
-userdataWN_snapshot.txt.gz
-userdataWNreal.txt.gz
 CloudInitFiles/CE-test/
 CloudInitFiles/WN-test/
 CloudInitFiles/cloud-timings.log
@@ -37,4 +32,3 @@ CloudInitFiles/tmp.txt
 .gitignore
 oldCEfiles/
 scripts_sara/
-userdataWNSara.txt.gz

@@ -6,10 +6,12 @@
 # mailto: svallero@to.infn.it
 
 # Configuration goes here: ########
-config_file="ConfigureMyProxy.ccfg"
+#config_file="ConfigureCE.ccfg"
+config_file="ConfigureSE.ccfg"
 list_modules="IncludeModules.txt"
 image="ami-00000363"
-flavour="t2.myproxy"
+#flavour="t2.ce"
+flavour="t2.se"
 outfile="NewService.log"
 ###################################
 
