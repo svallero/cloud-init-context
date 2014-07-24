@@ -1,19 +1,21 @@
 #!/bin/sh
 
 # Run it in the dir where "WriteMIME.py" is!
-# This scripts instantiates a number of WNs uing the EC2 API
+# This scripts instantiates elastic WNs.
 
 # mailto: svallero@to.infn.it
 
 # Configuration goes here: ########
-##number=2
 number=1
-slots=8 # can be 6 or 8
-config_file="ConfigureWNreal.ccfg"
+slots=4 # can be 4, 6 or 8
+config_file="ConfigureEWN.ccfg"
+#config_file="ConfigureTest.ccfg"
 list_modules="IncludeModules.txt"
-image="ami-00000344"
-flavour="t2.wn.${slots}slot"
-outfile="NewWorkers.log"
+image="ami-00000445" # EWN-BASE-4S
+flavour="t2.ewn.${slots}slot"
+outfile="NewEWN.log"
+#volume="vol-00000438" 
+#device="vdf"
 ###################################
 
 echo -e "\e[32mI'm going to instantiate $number nodes with the following configuration:\e[0m"
@@ -21,6 +23,7 @@ echo -e "\e[33mConfiguration file:\e[0m $config_file"
 echo -e "\e[33mList of modules:\e[0m $list_modules"
 echo -e "\e[33mBase image:\e[0m $image"
 echo -e "\e[33mFlavour:\e[0m $flavour (= $slots job slots)"
+#echo -e "\e[33mVolume:\e[0m $volume (to be attached in /dev/$device)"
 
 echo -e "\e[32mIs this ok (yes/no)?\e[0m"
 read conf
@@ -43,8 +46,9 @@ echo $PWD/$userdata
 rm tmp.txt
 echo -e "\e[32mRunning command:\e[0m"
 echo `date` > $outfile
+#cmd="euca-run-instances $image -t $flavour -f $userdata -n $number -b '/dev/vdf=$volume'"
 cmd="euca-run-instances $image -t $flavour -f $userdata -n $number"
-echo $cmd 
+echo $cmd > tmp.txt 
 
 
 $cmd | sed 1d | \

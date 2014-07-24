@@ -1,0 +1,25 @@
+#cloud-config
+
+groups:
+  - delorean
+
+users:
+  - default
+  - name: marty
+    gecos: Marty McFly
+    groups: delorean
+  - name: doc
+    gecos: Emmett Brown
+    groups: delorean
+
+my_custom_section:
+ - &my_custom_script |
+   F=/context_successful.txt
+   echo "Where we're going, we don't need roads!" > $F
+   id marty >> $F
+   id doc >> $F
+   true
+
+runcmd:
+ - [ bash, -c, *my_custom_script ]
+

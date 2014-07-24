@@ -1,19 +1,20 @@
 #!/bin/sh
 
 # Run it in the dir where "WriteMIME.py" is!
-# This scripts instantiates a number of WNs uing the EC2 API
+# This scripts creates the base image to be snapshotted for elastic WNs.
 
 # mailto: svallero@to.infn.it
 
 # Configuration goes here: ########
-##number=2
 number=1
-slots=8 # can be 6 or 8
-config_file="ConfigureWNreal.ccfg"
+slots=4 # can be 4, 6 or 8
+config_file="ConfigureWNBase.ccfg"
+#config_file="ConfigureTest.ccfg"
 list_modules="IncludeModules.txt"
-image="ami-00000344"
-flavour="t2.wn.${slots}slot"
-outfile="NewWorkers.log"
+image="ami-00000406" # casini col kernel?
+#image="ami-00000344"
+flavour="t2.ewnb.${slots}slot"
+outfile="NewBaseWorker.log"
 ###################################
 
 echo -e "\e[32mI'm going to instantiate $number nodes with the following configuration:\e[0m"
@@ -48,7 +49,6 @@ echo $cmd
 
 
 $cmd | sed 1d | \
-#euca-describe-instances | sed 1d | \
 while read i
 do
   a=($i)

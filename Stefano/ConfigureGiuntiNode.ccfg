@@ -1,57 +1,97 @@
-#multiple-config
+#cloud-config
 # vim: syntax=yaml
 
 ### Contact: stefano.bagnasco@to.infn.it
 
+disk_setup:
+  /dev/vdb:
+    type: 'mbr'
+    layout: 
+      - [33,82]
+      - 66
+    overwrite: True
 
-# CONFIGURE LOCAL FILESYSTEM ###############################################
-# partitions the ephemeral disk you attach to the VM                       #
-############################################################################
+fs_setup:
+    - label: tmp
+      filesystem: 'ext4'
+      device: '/dev/vdb2'
+      partition: 'auto'
+    - label:  swap
+      filesystem: 'swap'
+      device: '/dev/vdb1'
 
-localfs:
-   #extdisk: '/dev/hdb' # this is for SLC5
-   parts:
-      # below percent of VG 
-      home: 58
-      tmp: 8
-      # below percent of FREE 
-      swap: 100
-
+mounts:
+  - [ "/dev/vdb1", "none", "swap", "sw", "0", "0" ]
+  - [ "/dev/vdb2", "/tmp", "ext4", "defaults,nobootwait", "0", "0" ]
+  
 groups:
   - users
   
 users:
   - default
-  - name:bagnasco
-    primary-group: users
+  - name: bagnasco
+    groups: users
     gecos: Stefano Bagnasco
-    lock-passwd: false
-    passwd: $6$ttFeQl8Z$GaR5aSSKzTK8UUrdGaiMZvnDZpcjZZ/DA/7zQ4Kt3a0WaEhB2UM.bUuhbAgVlXb/xjsqbfvPm/xbNTni1Wtu1
+  - name: giunti
+    groups: users
+    gecos: Carlo Giunti
+  - name: dimauro
+    groups: users
+    gecos: Mattia Di Mauro
+  - name: gariazzo
+    groups: users
+    gecos: Stefano Gariazzo
+  - name: vittino
+    groups: users
+    gecos: Andrea Vittino
     
-  
-    
+packages:
+  - default-jdk
+  - default-jdk-doc
+  - gfortran 
+  - gfortran-doc
+  - gnome-system-monitor
+  - emacs
+  - gedit 
+  - gedit-plugins 
+  - gedit-latex-plugin 
+  - gedit-r-plugin 
+#  - gedit-valatoys-plugin
+  - gnuplot 
+  - gnuplot-doc
+  - gv
+  - imagemagick
+  - lshw 
+  - lsof
+  - man 
+  - manpages
+  - nano
+  - nautilus
+  - nedit    
+  - r-base 
+  - r-base-html 
+  - r-cran-* 
+  - r-doc-* 
+  - r-mathlib 
+  - r-recommended
+  - sshfs
+  - texlive-full
+  - tkcvs
+  - tree
+  - xfig 
+  - xfig-doc
 
-# EXTRA PACKAGES ###########################################################
-# specify repo for yum option --enablerepo                                 #
-# if 'none' only repos already enabled are considered                      #
-############################################################################
+runcmd:
+ - [ apt-get, clean ]
+ 
+packages:
+  - htcondor
+  - htcondor-doc
+ 
 
-addons:
-  epel:
-    - 'tcsh'
-    - 'bind-utils'
-    - 'compat-libgfortran-41'
-    - 'gcc-gfortran' 
-    - 'libXpm'
-    - 'compat-db43'
 
-# SUMMARY ##################################################################
-# add some additional script to be run at the end.                         # 
-# For instance the script to produce a summary logfile from the single     #
-# part-handlers logs.                                                      #
-# Comment-out if already included as x-include-url.                        #
-############################################################################
+write_files:
+-   content: |
+       Hey, this worked!
+    path: /tmp/testfile
 
-#afterburners:
-#  - 'http://srm-dom0.to.infn.it/test/summary_log.py'
-#  - 'summary_log.py'

@@ -1,0 +1,61 @@
+#multiple-config
+# vim: syntax=yaml
+
+############################################################################
+# Configure base image for elastic WN snapshots                            #
+############################################################################
+
+### Contact: svallero@to.infn.it
+ 
+# CONFIGURE LOCAL FILESYSTEM ###############################################
+# partitions the ephemeral disk you attach to the VM                       #
+############################################################################
+
+localfs:
+  mounts:
+    - [vdb, /tmp, "xfs", "defaults", 0, 0]
+    - [vdc, /var/lib/cvmfs, "xfs", "defaults", 0, 0]
+    - [vdd, swap, swap , "defaults", 0, 0]
+    - [vde, /home, "ext4" , "defaults", 0, 0]          
+
+ 
+# CONFIGURE CVMFS ##########################################################
+# packages are downloaded from 'https://ecsft.cern.ch/dist/cvmfs'          #
+############################################################################
+
+cvmfs:
+  install: False
+  start: True
+
+# MOUNT SHARED-SOFTWARE AREA VIA LUSTRE ####################################
+# sarebbe bene dare un nome piu' semplice agli rpm, tipo 'release'...      #
+# e metterli sul server http (x ora srm-dom0)                              #
+# In realta' bisognerebbe aggiornare il server Lustre e tutto questo trigo #
+# dei moduli da ricompilare against il kernel dovrebbe sparire!            #
+############################################################################
+
+sharedsw:
+  lustre-master: 192.168.7.101
+  filesystem: expsoft
+  mount-point: /opt/exp_software 
+
+# ADD SSH_KNOWN_HOSTS ######################################################
+# File "ssh_known_hosts" is always embedded in the MIME,                   # 
+# either from local file or from repo (put a "+" before the file name)     #
+############################################################################
+
+knownhosts:
+  embedfiles: 
+    - 'sensitivedata_WN/ssh_known_hosts'
+
+
+# CONFIGURE GRID ###########################################################
+# If this config-file does not contain a section named 'grid_config',      #
+# it is equivalent to 'SKIP_GRID=1' in the old init.sh                     #
+############################################################################
+#grid_config:
+#  embedfiles:
+#    - 'sensitivedata_WN/createhost-rsa'
+#    - 'sensitivedata_WN/offlinehost-rsa'
+#    - 'sensitivedata_WN/munge.key'
+#  ce: 't2-ce-01.to.infn.it'

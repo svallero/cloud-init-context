@@ -26,7 +26,7 @@ except ImportError:
 
 # Remember to add below all the standard modules you intend to use 
 # (better to put all...) TODO
-standard_modules = ['cloud_final_modules', 'disable_ssh', 'ssh_genkeytypes', 'ssh', 'ssh_deletekeys', 'packages', 'runcmd', 'yum_repos', 'bootcmd', 'preserve_hostname', 'hostname', 'yum_repos', 'write_files']
+standard_modules = ['cloud_final_modules', 'disable_ssh', 'ssh_genkeytypes', 'ssh', 'ssh_deletekeys', 'packages', 'runcmd', 'yum_repos', 'bootcmd', 'preserve_hostname', 'hostname', 'yum_repos', 'write_files','mounts']
 
 #########################################
 class OrderedDictYAMLLoader(yaml.Loader):
