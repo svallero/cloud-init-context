@@ -119,10 +119,6 @@ def handle_part(data,ctype,filename,payload):
   localfs_cfg = cfg['localfs']
   logger.info(' configuring localfs...')
   
-  # Test by SV 
-  #logger.error('*** SARA: test, ricordati di toglierlo!') 
-  # ends here
-
   # Name of volume group
   Vg = 'attached'
   # External disk (specified in the template)
@@ -131,115 +127,171 @@ def handle_part(data,ctype,filename,payload):
     Dev = localfs_cfg['extdisk']
      
   # List of partitions
-  list_of_partitions(localfs_cfg)
+  if 'parts' in localfs_cfg:
+    list_of_partitions(localfs_cfg)
 
-  # If structure already exists skip this section
-  try:
-    cmd = ('vgdisplay '+Vg+' > /dev/null 2>&1')
-    DPopen(cmd,'True') 
-  except:
-    logger.info('local filesystem structure not yet created, Im doing it now...')
-
+    # If structure already exists skip this section
     try:
-       cmd = ('dd if=/dev/zero of='+Dev+' count=100 bs=100')
-       DPopen(cmd,'True') 
+      cmd = ('vgdisplay '+Vg+' > /dev/null 2>&1')
+      DPopen(cmd,'True') 
     except:
-       logger.error('dd command failed!')
-       return 
+      logger.info('local filesystem structure not yet created, Im doing it now...')
 
-    #try:
-    #   cmd = ('yum -y install  lvm2')
-    #   DPopen(cmd,'True') 
-    #except:
-    #   logger.error('yum installation of lvm2 has failed!')
-    #   return
-
-    #try:
-    #   cmd = ('yum -y install  xfsprogs')
-    #   DPopen(cmd,'True') 
-    #except:
-    #   logger.error('yum installation of xfsprogs has failed!')
-    #   return
-
-    logger.info('creating physical volume...')
-    try:
-       cmd = ('pvcreate '+Dev+'')
-       DPopen(cmd,'True') 
-    except:
-       logger.error('could not create physical volume!')
-       return
-  
-    logger.info('creating volume group...')
-    try:
-       cmd = ('vgcreate '+Vg+' '+Dev+'')
-       DPopen(cmd,'True') 
-    except:
-       logger.error('could not create volume group!')
-       return
-  
-    Lv = ''
-    Size = ''
-    Mount = ''
-    for p in Parts:
-       Lv = p[0] 
-       Size = p[1] 
-       Mnt = p[2]
-       if (Size == '0%VG'):
-         continue 
-       logger.info('creating logical volume '+Lv+'...') 
-       try:
-         cmd = ('lvcreate -l '+Size+' -n '+Lv+' '+Vg+'')
+      try:
+         cmd = ('dd if=/dev/zero of='+Dev+' count=100 bs=100')
          DPopen(cmd,'True') 
-       except:
-         logger.error('could not create logical volume!')
-         return
-       logger.info('creating mount point '+Mnt+'...') 
-       try:
-         cmd = ('mkdir -p '+Mnt+'')
+      except:
+         logger.error('dd command failed!')
+         return 
+
+      logger.info('creating physical volume...')
+      try:
+         cmd = ('pvcreate '+Dev+'')
          DPopen(cmd,'True') 
-       except:
-         logger.error('could not create mount point!')
+      except:
+         logger.error('could not create physical volume!')
          return
-       if Mnt == 'swap':
-         logger.info(''+Lv+' making swap space...') 
+  
+      logger.info('creating volume group...')
+      try:
+         cmd = ('vgcreate '+Vg+' '+Dev+'')
+         DPopen(cmd,'True') 
+      except:
+         logger.error('could not create volume group!')
+         return
+  
+      Lv = ''
+      Size = ''
+      Mount = ''
+      for p in Parts:
+         Lv = p[0] 
+         Size = p[1] 
+         Mnt = p[2]
+         if (Size == '0%VG'):
+           continue 
+         logger.info('creating logical volume '+Lv+'...') 
          try:
-           cmd = ('mkswap /dev/'+Vg+'/'+Lv+'')
+           cmd = ('lvcreate -l '+Size+' -n '+Lv+' '+Vg+'')
+           DPopen(cmd,'True') 
+         except:
+           logger.error('could not create logical volume!')
+           return
+         logger.info('creating mount point '+Mnt+'...') 
+         try:
+           cmd = ('mkdir -p '+Mnt+'')
+           DPopen(cmd,'True') 
+         except:
+           logger.error('could not create mount point!')
+           return
+         if Mnt == 'swap':
+           logger.info(''+Lv+' making swap space...') 
+           try:
+             cmd = ('mkswap /dev/'+Vg+'/'+Lv+'')
+             DPopen(cmd,'True') 
+           except:
+             logger.error('ERROR: unable to make swap!')
+           logger.info('activating swap...') 
+           try:
+             cmd = ('swapon /dev/'+Vg+'/'+Lv+'')
+             DPopen(cmd, 'True') 
+           except:
+             logger.error('unable to activate swap!')
+           logger.info(''+Lv+' adding to fstab...') 
+           try:
+             cmd = ('echo "/dev/'+Vg+'/'+Lv+' swap swap defaults 0 0" >> /etc/fstab')
+             DPopen(cmd,'True') 
+           except:
+             logger.error('unable to add to fstab!')
+         else:  
+           logger.info(''+Lv+' making filesystem...')
+           try:
+             cmd = ('mkfs.xfs -L '+Lv+' /dev/'+Vg+'/'+Lv+'')
+             DPopen(cmd, 'True') 
+           except:
+             logger.error('unable to make filesystem!')
+           logger.info('mounting filesystem to '+Mnt+'...')
+           try:
+             cmd = ('mount -t xfs /dev/'+Vg+'/'+Lv+' '+Mnt+'')
+             DPopen(cmd,'True') 
+           except:
+             logger.error('unable to mount filesystem!')
+           if Lv == 'tmp':
+             logger.info('adjusting permission for tmp dir...')
+             cmd = ('chmod 1777 '+Mnt+'')
+             DPopen(cmd,'True') 
+           logger.info(''+Lv+' adding to fstab...') 
+           try:
+             cmd = ('echo "/dev/'+Vg+'/'+Lv+' '+Mnt+' xfs defaults 0 0" >> /etc/fstab')
+             DPopen(cmd,'True') 
+           except:
+             logger.error('ERROR: unable to add to fstab!')
+  elif 'mounts' in localfs_cfg:
+    mounts_cfg=localfs_cfg['mounts'] 
+    for mnt in mounts_cfg:
+       logger.info('mounting: '+str(mnt)+'...') 
+       Dev=mnt[0]
+       Mnt=mnt[1]
+       Fs=mnt[2]
+       logger.info('considering device '+Dev+'...')
+       if 'swap' in Mnt: # SWAP
+         logger.info('making swap space...') 
+         try:
+           cmd = ('mkswap /dev/'+Dev+'')
            DPopen(cmd,'True') 
          except:
            logger.error('ERROR: unable to make swap!')
          logger.info('activating swap...') 
          try:
-           cmd = ('swapon /dev/'+Vg+'/'+Lv+'')
+           cmd = ('swapon /dev/'+Dev+'')
            DPopen(cmd, 'True') 
          except:
            logger.error('unable to activate swap!')
-         logger.info(''+Lv+' adding to fstab...') 
+       else: # OTHER MOUNTS
+         # this makes me loose time? maybe do just for /home
+         logger.info('check if device is formatted...')
          try:
-           cmd = ('echo "/dev/'+Vg+'/'+Lv+' swap swap defaults 0 0" >> /etc/fstab')
+           #cmd='blkid | grep /dev/'+Dev+''
+           cmd='blkid'
+           proc=Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+         except: 
+           logger.error('could not check device with blkid!')
+           return 
+         out,err= proc.communicate()
+         if Dev not in out:
+           logger.info('device is not formatted, doing it now...')
+           try:
+             cmd=('mkfs -t '+Fs+' /dev/'+Dev+'')
+             DPopen(cmd,'True') 
+           except:
+             logger.error('could not format device!')
+         else:
+           logger.info('...yes!') 
+         logger.info('creating mount point...')
+         try:
+           cmd = ('mkdir -p '+Mnt+'')
            DPopen(cmd,'True') 
          except:
-           logger.error('unable to add to fstab!')
-       else:  
-         logger.info(''+Lv+' making filesystem...')
-         try:
-           cmd = ('mkfs.xfs -L '+Lv+' /dev/'+Vg+'/'+Lv+'')
-           DPopen(cmd, 'True') 
-         except:
-           logger.error('unable to make filesystem!')
+           logger.error('could not create mount point!')
+           return
          logger.info('mounting filesystem to '+Mnt+'...')
          try:
-           cmd = ('mount -t xfs /dev/'+Vg+'/'+Lv+' '+Mnt+'')
+           cmd = ('mount -t '+Fs+' /dev/'+Dev+' '+Mnt+'')
            DPopen(cmd,'True') 
          except:
            logger.error('unable to mount filesystem!')
-         if Lv == 'tmp':
+         if 'tmp' in Mnt:
            logger.info('adjusting permission for tmp dir...')
            cmd = ('chmod 1777 '+Mnt+'')
            DPopen(cmd,'True') 
-         logger.info(''+Lv+' adding to fstab...') 
-         try:
-           cmd = ('echo "/dev/'+Vg+'/'+Lv+' '+Mnt+' xfs defaults 0 0" >> /etc/fstab')
-           DPopen(cmd,'True') 
-         except:
-           logger.error('ERROR: unable to add to fstab!')
+
+       logger.info('adding to fstab...') 
+       try:
+         cmd = ('echo "/dev/'+Dev+' '+Mnt+' '+Fs+' '+mnt[3]+' '+str(mnt[4])+' '+str(mnt[5])+' " >> /etc/fstab')
+         DPopen(cmd,'True') 
+       except:
+         logger.error('unable to add to fstab!')
+
+  else: 
+    logger.error('Neither parts nor mount specified, doing nothing!')
+
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))

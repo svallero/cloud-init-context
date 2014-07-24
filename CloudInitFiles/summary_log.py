@@ -4,6 +4,7 @@
 
 import os
 import urllib2
+import socket
 
 # Write below list of strings to be ignored
 # Capire come mai e cercare di eliminare gli errori TODO
@@ -25,12 +26,25 @@ logger.info('************************************************')
 goodnode=True
 
 files=os.popen('ls -rt /var/log/cloud-init-*').read()
+service=False
 for file in files.splitlines(): 
+   if 'cloud-init-output.log' in file:
+     break
+   hostname = socket.gethostname()
+   if ('t2-ce-01' in hostname or 'se-srm-00' in hostname):
+      service = True
+   elif (not os.path.getsize('/var/log/cloud-init-grid_config.log')):
+      # this is in case we are creating the EWN base image
+      service = True
    errors = False 
    # write stuff only if file is not empty
    if (os.stat(file).st_size != 0):
      fh = open(file)
+     skip = False
      for line in fh:
+       if skip:
+          line = fh.next()       
+       skip = False 
        if 'ERROR' in line or 'merr' in line or 'errno' in line:
          # 'merr' comes from puppet, for some reason the exception 
          # is not caught by python 
@@ -43,10 +57,10 @@ for file in files.splitlines():
          elif 'munge' in line:
            # in case of the munge.key error I want to skip also 
            # the following line
-           line = fh.next()       
+           skip = true  
      # now consider last line
      if 'preconfig' not in file:
-        if '==== end ctype' not in line:      
+        if '==== end ctype' not in line and errors == False:      
            logger.error(file)
            errors  = True
            goodnode = False
@@ -57,7 +71,7 @@ for file in files.splitlines():
   
 # put node offline if some error occurred
 filename = 'offlinehost-rsa'
-if not goodnode: 
+if not goodnode and not service: 
 #if goodnode: 
    logger.info('*** PUTTING NODE OFFLINE NOW! ***') 
    try:

@@ -57,11 +57,11 @@ def install_lustre(repo,client,modules):
   except:
     logger.error('could not retrieve package '+modules_rpm_url+'!')
     return
-  
 
   # Install packages
   try:
-    cmd = ('yum --nogpgcheck -y localinstall /tmp/client.rpm /tmp/modules.rpm') 
+    string = '/tmp/client.rpm /tmp/modules.rpm'
+    cmd = ('yum --nogpgcheck -y localinstall '+string+'') 
     DPopen(shlex.split(cmd),'False')
   except:
     logger.error('Lustre installation from the yum repository has failed!')
@@ -117,59 +117,57 @@ def handle_part(data,ctype,filename,payload):
        return
      if 'modules' in rpms_cfg:
        modules = rpms_cfg['modules']
-     else:
-       logger.error('no modules rpm specified!')
-       return
+     install_lustre(repo, client, modules)
+  else:
+     logger.info("no modules rpm specified: I'm not installing Lustre!")
 
-  install_lustre(repo, client, modules)
  
   # Lustre master (IP)
-  if 'lustre-master' in sharedsw_cfg:
-     lustre_master = sharedsw_cfg['lustre-master']
+  if 'lustre-master' not in sharedsw_cfg:
+    logger.info("Lustre master not specified: I'm not mounting shared software area!")
   else:
-    logger.error('no lustre-master specified!')
-    return
-  # Desired filesystem
-  if 'filesystem' in sharedsw_cfg:
-     filesystem = sharedsw_cfg['filesystem']
-  else:
-    logger.error('no filesystem specified!')
-    return
-  # Desired mount-point 
-  if 'mount-point' in sharedsw_cfg:
-    mount_point = sharedsw_cfg['mount-point']
-  else:
-    mount_point = '/opt/exp_software'
-  # Write fstab
-  logger.info('removing old entry in fstab...')
-  # remove old entry 
-  try:
-    cmd = ('cat /etc/fstab | grep -v "'+lustre_master+'@" >> /etc/fstab.0')  
-    DPopen(cmd,'True')
-    cmd = ('mv /etc/fstab.0 /etc/fstab')
-    DPopen(cmd, 'True')
-    #os.system('cat /etc/fstab | grep -v "'+lustre_master+'@" >> /etc/fstab.0')  
-    #os.system('mv /etc/fstab.0 /etc/fstab')
-  except:
-    logger.error('could not remove old entry in fstab!') 
-  # new entry
-  try:
-    logger.info('adding new entry in fstab...')
-    #cmd = ('echo "'+lustre_master+'@tcp0:/'+filesystem+' '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
-    cmd = ('echo "'+lustre_master+'@tcp0:/'+filesystem+' '+mount_point+' lustre defaults,localflock,_netdev,user_xattr 0 0" >> /etc/fstab')
-    DPopen(cmd,'True')
-    #os.system('echo "'+lustre_master+'@tcp0:/expsoft '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
-  except:
-    logger.error('could not add new entry in fstab!') 
-  # now mount
-  logger.info('mounting shared-software area...')
-  try:
-    cmd = ('mkdir -p '+mount_point+'')
-    DPopen(shlex.split(cmd), 'False')
-    cmd = ('mount '+mount_point+'')
-    DPopen(shlex.split(cmd), 'False')
-  except:
-     logger.error('could not mount shared-software area!')
-     return
+    lustre_master = sharedsw_cfg['lustre-master']
+    # Desired filesystem
+    if 'filesystem' in sharedsw_cfg:
+       filesystem = sharedsw_cfg['filesystem']
+    else:
+       logger.error('no filesystem specified!')
+       return
+    # Desired mount-point 
+    if 'mount-point' in sharedsw_cfg:
+       mount_point = sharedsw_cfg['mount-point']
+    else:
+       mount_point = '/opt/exp_software'
+    # Write fstab
+    logger.info('removing old entry in fstab...')
+    # remove old entry 
+    try:
+       cmd = ('cat /etc/fstab | grep -v "'+lustre_master+'@" >> /etc/fstab.0')  
+       DPopen(cmd,'True')
+       cmd = ('mv /etc/fstab.0 /etc/fstab')
+       DPopen(cmd, 'True')
+       #os.system('cat /etc/fstab | grep -v "'+lustre_master+'@" >> /etc/fstab.0')  
+       #os.system('mv /etc/fstab.0 /etc/fstab')
+    except:
+       logger.error('could not remove old entry in fstab!') 
+    # new entry
+    try:
+       logger.info('adding new entry in fstab...')
+       #cmd = ('echo "'+lustre_master+'@tcp0:/'+filesystem+' '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
+       cmd = ('echo "'+lustre_master+'@tcp0:/'+filesystem+' '+mount_point+' lustre defaults,localflock,_netdev,user_xattr 0 0" >> /etc/fstab')
+       DPopen(cmd,'True')
+       #os.system('echo "'+lustre_master+'@tcp0:/expsoft '+mount_point+' lustre defaults,localflock,_netdev 0 0" >> /etc/fstab')
+    except:
+       logger.error('could not add new entry in fstab!') 
+    # now mount
+    logger.info('mounting shared-software area...')
+    try:
+       cmd = ('mkdir -p '+mount_point+'')
+       DPopen(shlex.split(cmd), 'False')
+       cmd = ('mount '+mount_point+'')
+       DPopen(shlex.split(cmd), 'False')
+    except:
+       logger.error('could not mount shared-software area!')
+       return
 
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

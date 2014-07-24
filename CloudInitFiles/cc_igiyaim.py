@@ -188,15 +188,15 @@ def handle_part(data,ctype,filename,payload):
   # for workernodes
   if type == 'wn':
      logger.info('configuring WN...')
-     logger.info('patching file "$yaimhome/node-info.d/wn_torque_noafs"...')
-     try:
-       cmd = ('grep -v "config_ntp" '+yaimhome+'/node-info.d/wn_torque_noafs > '+yaimhome+'/node-info.d/wn_torque_noafs.0')
-       DPopen(cmd, 'True')
-       cmd = ('mv '+yaimhome+'/node-info.d/wn_torque_noafs.0 '+yaimhome+'/node-info.d/wn_torque_noafs') 
-       DPopen(cmd, 'True')
-     except:
-       logger.error('could not patch file "$yaimhome/node-info.d/wn_torque_noafs"')
-       return
+     #logger.info('patching file "$yaimhome/node-info.d/wn_torque_noafs"...')
+     #try:
+     #  cmd = ('grep -v "config_ntp" '+yaimhome+'/node-info.d/wn_torque_noafs > '+yaimhome+'/node-info.d/wn_torque_noafs.0')
+     #  DPopen(cmd, 'True')
+     #  cmd = ('mv '+yaimhome+'/node-info.d/wn_torque_noafs.0 '+yaimhome+'/node-info.d/wn_torque_noafs') 
+     #  DPopen(cmd, 'True')
+     #except:
+     #  logger.error('could not patch file "$yaimhome/node-info.d/wn_torque_noafs"')
+     #  return
 
      #try:
      #  cmd = ('/sbin/service iptables stop')
@@ -207,16 +207,20 @@ def handle_part(data,ctype,filename,payload):
      #  logger.error('failed to disable firewall and selinux!') 
      #  return
 
+     logger.info('writing dummy munge.key...') 
+     os.system('mkdir -p /etc/munge') 
+     os.system('echo "dummy" > /etc/munge/munge.key');
+     os.system('chown munge:munge /etc/munge/munge.key')
      logger.info('go yaim...')
-     #try :
-     cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
-     DPopen(cmd, 'True')
-     #cmd = ('/opt/glite/yaim/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 | tee /root/conf_WN_Torque.`hostname -s`.`date +%Y-%m-%d-%H-%M-%S`.log')
-     cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1')
-     DPopen(cmd, 'True')
-     #except:
-       #logger.error('failed to configure with yaim.') 
-       #return
+     try :
+        cmd = ('echo `hostname -f` > '+yaimhome+'/production/wn-list.conf')
+        DPopen(cmd, 'True')
+        #cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN_torque_noafs 2>&1 > /var/log/yaim.log')
+        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def -n WN -n TORQUE_client 2>&1 > /var/log/yaim.log')
+        DPopen(cmd, 'True')
+     except:
+       logger.error('failed to configure with yaim.') 
+       return
 
   # for ce
   elif type == 'ce':
@@ -234,13 +238,15 @@ def handle_part(data,ctype,filename,payload):
      #except:
      #  logger.error('failed to stop selinux!')
      #  return 
+     
      try:
         logger.info('go yaim...')
-        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n  creamCE -n TORQUE_server -n TORQUE_utils 2>&1') 
+        cmd = (''+yaimhome+'/bin/yaim -c -d 6 -s '+yaimhome+'/production/siteinfo/site-info.def  -n  creamCE -n TORQUE_server -n TORQUE_utils 2>&1 > /var/log/yaim.log') 
         DPopen(cmd, 'True')   
      except:
         logger.error('failed to configure with yaim!') 
         return
+
   # for se
   elif type == 'se':
      logger.info('configuring SE...')

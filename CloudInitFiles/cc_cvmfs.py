@@ -211,18 +211,19 @@ def handle_part(data,ctype,filename,payload):
   LocalFile = '/etc/cvmfs/default.local'
   DomainFile = '/etc/cvmfs/domain.d/cern.ch.local'
   CMS_LocalFile = '/etc/cvmfs/config.d/cms.cern.ch.local'
-  
   config_cvmfs(LocalFile, DomainFile, CMS_LocalFile, cvmfs_cfg)
-
-  logger.info('starting cvmfs...')
-  # Start cvmfs
-  try:
-    cmd = ('cvmfs_config reload')
-    DPopen(shlex.split(cmd), 'False') 
-    cmd = ('cvmfs_config probe')
-    DPopen(shlex.split(cmd), 'False') 
-  except:
-    logger.error('could not start cvmfs!')
-    return 
+  
+  if 'start' in cvmfs_cfg:
+    if cvmfs_cfg['start']:
+      logger.info('starting cvmfs...')
+      # Start cvmfs
+      try:
+        cmd = ('cvmfs_config reload')
+        DPopen(shlex.split(cmd), 'False') 
+        cmd = ('cvmfs_config probe')
+        DPopen(shlex.split(cmd), 'False') 
+      except:
+        logger.error('could not start cvmfs!')
+        return 
 
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       
