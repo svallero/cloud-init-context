@@ -1,4 +1,0 @@
-NAME = "giunti-Pub"
-TYPE = FIXED
-BRIDGE = dummy 
-LEASES = [ IP = "193.205.66.216" ]

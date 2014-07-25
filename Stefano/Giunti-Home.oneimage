@@ -1,7 +1,0 @@
-NAME = "Giunti-Home"
-TYPE = "DATABLOCK"
-PERSISTENT = "Yes"
-FSTYPE = "xfs"
-SIZE = "20000"
-EBS_VOLUME="YES"
-DEV_PREFIX="vd"
