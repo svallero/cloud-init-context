@@ -1,0 +1,25 @@
+#multiple-config
+# vim: syntax=yaml
+
+############################################################################
+# This file reflects the contents of 'init.sh' for the ALICE workernodes   #
+# The order of the configuration blocks does not matter here,              #
+# but it is important that you load the custom modules (part-handlers)     #
+# in the right order                                                       #
+############################################################################
+
+### Contact: svallero@to.infn.it
+
+# CONFIGURE GRID ###########################################################
+# If this config-file does not contain a section named 'grid_config',      #
+# it is equivalent to 'SKIP_GRID=1' in the old init.sh                     #
+############################################################################
+
+grid_config:
+# repo: 'http://srm-dom0.to.infn.it/test/production'
+  embedfiles: 
+    - 'sensitivedata_WN/createhost-rsa'
+    #- 'sensitivedata_WN/munge.key'
+    - 'tmp/munge.key'
+  #ce: 't2-ce-01.to.infn.it'
+  ce: 't2-dom0-02.to.infn.it'

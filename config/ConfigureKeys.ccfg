@@ -1,0 +1,17 @@
+#cloud-config
+# vim: syntax=yaml
+
+ssh_deletekeys:   True
+
+# The modules that run in the 'final' stage
+#cloud_final_modules:
+#  - rightscale_userdata
+#  - scripts-per-once
+#  - scripts-per-boot
+#  - scripts-per-instance
+#  - scripts-user
+#  - keys-to-console
+#  - phone-home
+#  - final-message
+#  - power-state-change
+

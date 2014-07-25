@@ -1,0 +1,29 @@
+#multiple-config
+# vim: syntax=yaml
+
+############################################################################
+# Configure base image for elastic WN snapshots                            #
+############################################################################
+
+### Contact: svallero@to.infn.it
+
+# mount stuff
+#mounts:
+#  - [vdb, /tmp, "xfs", "defaults", 0, 0] 
+#  - [vdc, /var/lib/cvmfs, "xfs", "defaults", 0, 0] 
+#  - [vdd, swap, swap , "defaults", 0, 0] 
+#  - [vde, /home, "ext4" , "defaults", 0, 0] 
+#bootcmd:
+#  - [mkfs, -t , ext4, /dev/vde]
+
+# CONFIGURE LOCAL FILESYSTEM ###############################################
+# # partitions the ephemeral disk you attach to the VM                       #
+# ############################################################################
+
+localfs:
+  mounts:
+#     - [vdb, /tmp, "xfs", "defaults", 0, 0]
+#     - [vdc, /var/lib/cvmfs, "xfs", "defaults", 0, 0] 
+#     - [vdd, swap, swap , "defaults", 0, 0] 
+     - [vdb, /home, "ext4" , "defaults", 0, 0] 
+
