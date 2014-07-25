@@ -8,7 +8,7 @@
 # Configuration goes here: ########
 number=1
 slots=4 # can be 4, 6 or 8
-config_file="ConfigureEWN.ccfg"
+config_file="config/ConfigureEWN.ccfg"
 #config_file="ConfigureTest.ccfg"
 list_modules="IncludeModules.txt"
 image="ami-00000445" # EWN-BASE-4S

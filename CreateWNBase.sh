@@ -8,7 +8,7 @@
 # Configuration goes here: ########
 number=1
 slots=4 # can be 4, 6 or 8
-config_file="ConfigureWNBase.ccfg"
+config_file="config/ConfigureWNBase.ccfg"
 #config_file="ConfigureTest.ccfg"
 list_modules="IncludeModules.txt"
 image="ami-00000406" # casini col kernel?

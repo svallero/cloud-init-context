@@ -6,8 +6,8 @@
 # mailto: svallero@to.infn.it
 
 # Configuration goes here: ########
-#config_file="ConfigureCE.ccfg"
-config_file="ConfigureSE.ccfg"
+#config_file="config/ConfigureCE.ccfg"
+config_file="config/ConfigureSE.ccfg"
 list_modules="IncludeModules.txt"
 image="ami-00000363"
 #flavour="t2.ce"

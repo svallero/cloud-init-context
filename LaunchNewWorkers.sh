@@ -9,7 +9,7 @@
 ##number=2
 number=1
 slots=8 # can be 6 or 8
-config_file="ConfigureWNreal.ccfg"
+config_file="config/ConfigureWN.ccfg"
 list_modules="IncludeModules.txt"
 image="ami-00000344"
 flavour="t2.wn.${slots}slot"

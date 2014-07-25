@@ -1,0 +1,220 @@
+#multiple-config
+# vim: syntax=yaml
+
+############################################################################
+# This file reflects the contents of 'init.sh' for the ALICE workernodes   #
+# The order of the configuration blocks does not matter here,              #
+# but it is important that you load the custom modules (part-handlers)     #
+# in the right order                                                       #
+############################################################################
+
+### Contact: svallero@to.infn.it
+
+# INCLUDE PART-HANDLERS ####################################################
+# (taken from web server exclusively, add the possibility to take from     #
+# local) TODO                                                              #
+# If you want to fetch them at boot:                                       #
+#   - comment-out lines below                                              # 
+#   - add 'IncludeModules.txt:x-include-url' at the beginning of List.txt  #
+############################################################################
+
+#boothook:
+#   - 'http://srm-dom0.to.infn.it/CloudInitFiles/preconfig.py'
+
+
+#parthandlers:
+#   repo: 'http://srm-dom0.to.infn.it/CloudInitFiles' 
+#   header: 'header.py'
+#   modules: 
+#     - 'cc_localfs.py'
+#     - 'cc_cvmfs.py'
+#     - 'cc_sharedsw.py'
+#     - 'cc_igiinstall.py'
+#     - 'cc_igiyaim.py'
+#     - 'cc_knownhosts.py'
+#     - 'cc_puppetconfig.py'
+#     - 'cc_zabbix.py'
+#     - 'cc_addons.py'
+#     - 'cc_grid_config.py'
+ 
+# CONFIGURE LOCAL FILESYSTEM ###############################################
+# partitions the ephemeral disk you attach to the VM                       #
+############################################################################
+
+localfs:
+   #extdisk: '/dev/hdb' # this is for SLC5
+   parts:
+      # below percent of VG 
+      cvmfs: 17
+      cvmfs_mount: '/var/lib/cvmfs'
+      home: 58
+      tmp: 8
+      # below percent of FREE 
+      swap: 100
+
+# CONFIGURE CVMFS ##########################################################
+# packages are downloaded from 'https://ecsft.cern.ch/dist/cvmfs'          #
+############################################################################
+
+cvmfs:
+  install: true
+  version: 2.1.17
+  local:
+    repositories: 'alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch,belle.cern.ch,lhcb.cern.ch' 
+    http-proxy: http://t2-squid-01.to.infn.it:3128
+    cache-base: /var/lib/cvmfs
+    quota-limit: 18000
+    strict-mount: 'yes'
+
+# MOUNT SHARED-SOFTWARE AREA VIA LUSTRE ####################################
+# sarebbe bene dare un nome piu' semplice agli rpm, tipo 'release'...      #
+# e metterli sul server http (x ora srm-dom0)                              #
+# In realta' bisognerebbe aggiornare il server Lustre e tutto questo trigo #
+# dei moduli da ricompilare against il kernel dovrebbe sparire!            #
+############################################################################
+
+sharedsw:
+  lustre-master: 192.168.7.101
+  filesystem: expsoft
+  mount-point: /opt/exp_software 
+  rpms:  
+    repository: "tmon.to.infn.it/lus3/down/1.8.8-x86_64/pa-cli"
+    client: lustre-client-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm
+    modules: lustre-client-modules-1.8.9-2.6.32_358.6.2.el6.x86_64_g9e68550.x86_64.rpm
+
+# INSTALL GRID SOFTWARE ####################################################
+# i.e. Torque client and CAs						   # 
+# 'yum-priorities', 'yum-protectbase' and 'epel-release' are installed by  #
+# default, you do not need to specify them                                 #
+############################################################################
+
+igiinstall:
+  repos:
+    #- 'http://emisoft.web.cern.ch/emisoft/dist/EMI/2/sl6/x86_64/base/emi-release-2.0.0-1.sl6.noarch.rpm'
+    - 'http://emisoft.web.cern.ch/emisoft/dist/EMI/3/sl6/x86_64/base/emi-release-3.0.0-2.el6.noarch.rpm'
+    - 'http://repo-pd.italiangrid.it/mrepo/repos/igi/sl6/x86_64/igi-emi2.repo'
+    - 'http://repo-pd.italiangrid.it/mrepo/repos/egi-trustanchors.repo'
+  packages:
+    - ca-policy-egi-core
+    #- igi-wn_torque_noafs # this is from IGI2, deprecated
+    - emi-wn
+    - emi-torque-client      
+
+# PREPARE AND RUN IGI-YAIM #################################################
+# (qui Grid-Prod.tar.gz sparisce ed i files sono embedded uno per uno nel  #
+#  MIME)                                                                   #  
+#									   #
+# --- If "embedfiles":                                                     #
+#     "+filename" takes it from specified repo                             # 
+#     "filename" takes it from local path                                  #
+#                                                                          #  
+# --- If "files":                                                          #
+#     additionally "filename" is taken from repo at boot (not embedded)    #
+#                                                                          #
+# Files will go in the yaim directory as follows:                          #
+#     filename.conf -> $yaimhome/production/                               #
+#     filename.def  -> $yaimhome/production/siteinfo                       #
+#     glite-something -> $yaimhome/production/siteinfo/services            #
+#     vo-something    -> $yaimhome/production/siteinfo/vo.d                # 
+#                                                                          #
+# --- If "tarfile":                                                        # 
+#     take files from "Grid-Prod.tar" repo.                                # 
+############################################################################
+
+igiyaim:
+  yaimhome: '/opt/glite/yaim'
+  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
+  #tarfile: 'Grid-Prod.tar.gz'
+  files:
+    - 'ig-groups.conf'
+    - 'ig-users.conf'
+    - 'wn-list.conf' 
+    - 'glite-bdii_site'
+    - 'vo-belle'
+    - 'vo-igi.italiangrid.it'
+    - 'vo-superbvo.org'
+    - 'vo-vo.cta.in2p3.fr'
+    - 'vo-vo.panda.gsi.de'
+  embedfiles: 
+    - 'sensitivedata_WN/site-info.def'
+    - 'sensitivedata_WN/glite-creamce'
+
+# ADD SSH_KNOWN_HOSTS ######################################################
+# File "ssh_known_hosts" is always embedded in the MIME,                   # 
+# either from local file or from repo (put a "+" before the file name)     #
+############################################################################
+
+knownhosts:
+# repo: 'http://srm-dom0.to.infn.it/test'
+  embedfiles: 
+    - 'sensitivedata_WN/ssh_known_hosts'
+
+# PUPPET ###################################################################
+# il modulo sembra funzionare, ma si pianta in                             #
+# 'did not receive certificate'.                                           #
+# The set of options below means:                                          # 
+# apply Puppet configuration synchronously, and exit on failure.           #
+# Note that the configuration is also applied when first starting the      # 
+# Puppet agent in background, but we want it to happen synchronously and   # 
+# to fail with a detailed message upon failure                             # 
+############################################################################
+
+puppetconfig:
+  version: '2.6.12-1'
+  repository: 'https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-7.noarch.rpm'
+# repo: 'http://srm-dom0.to.infn.it/test/production'
+  embedfiles: 
+    - 'sensitivedata_WN/puppetremote-rsa'
+  master: t2-se-00.to.infn.it 
+  options:
+    - 'onetime'
+    - 'verbose'
+    - 'ignorecache'
+    - 'no-daemonize'
+    - 'no-usecacheonfailure'
+    - 'show_diff'
+    - 'waitforcert=60'
+
+# INSTALL ZABBIX ###########################################################
+# I do not see any zabbix configuration here...                            #
+############################################################################
+
+zabbix: true
+
+# EXTRA PACKAGES ###########################################################
+# specify repo for yum option --enablerepo                                 #
+# if 'none' only repos already enabled are considered                      #
+############################################################################
+
+addons:
+  epel:
+    - 'tcsh'
+    - 'bind-utils'
+    - 'compat-libgfortran-41'
+    - 'gcc-gfortran' 
+    - 'libXpm'
+    - 'compat-db43'
+
+# CONFIGURE GRID ###########################################################
+# If this config-file does not contain a section named 'grid_config',      #
+# it is equivalent to 'SKIP_GRID=1' in the old init.sh                     #
+############################################################################
+
+grid_config:
+# repo: 'http://srm-dom0.to.infn.it/test/production'
+  embedfiles: 
+    - 'sensitivedata_WN/createhost-rsa'
+    - 'sensitivedata_WN/offlinehost-rsa'
+    - 'sensitivedata_WN/munge.key'
+  ce: 't2-ce-01.to.infn.it'
+
+# SUMMARY ##################################################################
+# add some additional script to be run at the end.                         # 
+# For instance the script to produce a summary logfile from the single     #
+# part-handlers logs.                                                      #
+# Comment-out if already included as x-include-url.                        #
+############################################################################
+
+#afterburners:
+#  - 'http://srm-dom0.to.infn.it/test/summary_log.py'
+#  - 'summary_log.py'

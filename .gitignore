@@ -1,3 +1,8 @@
+sync_to_prod*
+Stefano/._*
+.DS_Store
+._.DS_Store
+tmp.txt
 *.log
 *.save
 sensitivedata_*
