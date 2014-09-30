@@ -23,11 +23,9 @@ import sys
 import os
 import urllib2
 
-# Define global because needed in different functions
-myproxy_config_cfg = 0
-
 # Define logfile
-logname = '/var/log/cloud-init-myproxy_config.log'
+logname = '/var/log/cloud-init-apel.log'
+#logname = '/tmp/cloud-init-apel.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
 response = urllib2.urlopen('http://one-master.to.infn.it/cloud-init-files/header.py')
@@ -37,10 +35,9 @@ exec (response.read())
 
 def list_types():
   # return a list of mime-types that are handled by this module
-  return(["text/myproxy_config-config"])
+  return(["text/apel-config"])
 
 ########################
-
 
 def handle_part(data,ctype,filename,payload):
 
@@ -51,8 +48,10 @@ def handle_part(data,ctype,filename,payload):
   # payload: the content of the part (empty for begin or end)
   
   if ctype == "__begin__":
+     #print "my handler is beginning"
      return
   if ctype == "__end__":
+     #print "my handler is ending"
      return
 
   logger.info('==== received ctype=%s filename=%s ====' % (ctype,filename))
@@ -60,35 +59,29 @@ def handle_part(data,ctype,filename,payload):
   # Payload should be interpreted as yaml since configuration is given in cloud-config format
   cfg = util.load_yaml(payload)
   
-  # If there isn't a myproxy_config reference in the configuration don't do anything
-  if 'myproxy_config' not in cfg:
-     logger.error('myproxy_config configuration was not found!')
+  # If there isn't an apel reference in the configuration don't do anything
+  if 'apel' not in cfg:
+     logger.error('apel configuration was not found!')
      return 
  
-  logger.info('ready to configure PX')
-  global myproxy_config_cfg 
-  myproxy_config_cfg = cfg['myproxy_config'] 
+  logger.info('ready to configure APEL')
+  global apel_cfg 
+  apel_cfg = cfg['apel'] 
   
-  logger.info('Copying certificate to /etc/grid-security/myproxy...')
+  if 'parser.cfg' in apel_cfg:
+     os.mkdir('/etc/apel') 
+     try:
+         val = apel_cfg['parser.cfg']
+         get_embedded('parser.cfg', val, '/etc/apel/')
+     except:
+        logger.error('could not write configuration file!')
+        return
   try:
-     md = ('mkdir /etc/grid-security/myproxy/')
+     cmd=('echo "00 19 * * * root /usr/bin/apelparser" > /etc/cron.d/apel')
      DPopen(cmd, 'True')
   except:
-     logger.error('could not create /etc/grid-security/myproxy!')
+     logger.error('could not add apelparser to crontab!')
      return
-  for item in ['hostcert.pem','hostkey.pem']:
-     try:
-        cmd = ('cp /etc/grid-security/'+item+' /etc/grid-security/myproxy/')
-        DPopen(cmd, 'True')
-     except:
-        logger.error('could not copy '+item+'!')
-        return
-     try:
-        cmd = ('chown myproxy:myproxy /etc/grid-security/myproxy/'+item+'')
-        DPopen(cmd, 'True')
-     except:
-        logger.error('could change ownership of '+item+'!')
-        return
-
-
+ 
+  
   logger.info('==== end ctype=%s filename=%s' % (ctype, filename))	       

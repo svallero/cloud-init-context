@@ -32,7 +32,7 @@ logname = '/var/log/cloud-init-se_config.log'
 #logname = '/tmp/cloud-init-se_config.log'
 # Import script with definition of logger and some useful function
 # to avoid duplicating the same code on all modules
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
+response = urllib2.urlopen('http://one-master.to.infn.it/cloud-init-files/header.py')
 exec (response.read())
 
 ########################

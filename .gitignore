@@ -1,12 +1,8 @@
 Stefano/
 scripts_sara/
-sensitivedata_Argus/
-sensitivedata_CE/
-sensitivedata_MyProxy/
-sensitivedata_SE/
-sensitivedata_WN/
-config/ConfigureKeys.ccfg
-config/ConfigureTest.ccfg
-config/ConfigureWN_snapshot.ccfg
+sensitivedata_*
 create-new-base-image
 privkey.pem
+*.log
+userdata*
+apel

@@ -128,7 +128,8 @@ grid_config:
 igiyaim:
   type: 'ce'
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  #repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  repo: 'http://one-master.to.infn.it/cloud-init-files/CE'
   files:
     - 'ig-groups.conf'
     - 'ig-users.conf'
@@ -150,7 +151,8 @@ igiyaim:
 ############################################################################
 # some clean-up of useless files is needed TODO
 ce_config:
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  #repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/CE'
+  repo: 'http://one-master.to.infn.it/cloud-init-files/CE'
   scripts: # files are fetched from repo at boot
   #scripts_embedfiles: # if you want to embed the files ('+ if embed from repo')
     - 'scripts/checknumprocs.sh'
@@ -203,13 +205,17 @@ ce_config:
     - 'servercontext/ssh-hosts-keys'    
   mauicfg: 
     - 'maui.cfg'
-  dgas_packages:
-    - 'http://www.to.infn.it/grid/INFNGRID/TESTING/TESTING/files/rpms/DGAS_4/deps/rpm-sl6-x86_64/activemq-cpp-3.4.4-1.centos6.x86_64.rpm'
-    - 'glite-dgas-common-4.0.15-0.centos6.x86_64'
-    - 'glite-dgas-hlr-sensors-4.0.13-1.centos6.x86_64'
-    - 'glite-dgas-hlr-sensors-producers-4.0.13-2.centos6.x86_64'
-  dgascfg:
-    - 'dgas_sensors.conf'
+  #dgas_packages:
+  #  - 'http://www.to.infn.it/grid/INFNGRID/TESTING/TESTING/files/rpms/DGAS_4/deps/rpm-sl6-x86_64/activemq-cpp-3.4.4-1.centos6.x86_64.rpm'
+  #  - 'glite-dgas-common-4.0.15-0.centos6.x86_64'
+  #  - 'glite-dgas-hlr-sensors-4.0.13-1.centos6.x86_64'
+  #  - 'glite-dgas-hlr-sensors-producers-4.0.13-2.centos6.x86_64'
+  #dgascfg:
+  #  - 'dgas_sensors.conf'
+
+apel:
+  embedfiles:
+    - 'sensitivedata_CE/parser.cfg'
 
 # SUMMARY ##################################################################
 # add some additional script to be run at the end.                         # 

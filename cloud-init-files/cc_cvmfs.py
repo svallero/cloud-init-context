@@ -26,7 +26,7 @@ import os
 # Define logfile
 logname = '/var/log/cloud-init-cvmfs.log'
 #logname = '/tmp/cloud-init-cvmfs.log'
-response = urllib2.urlopen('http://srm-dom0.to.infn.it/CloudInitFiles/header.py')
+response = urllib2.urlopen('http://one-master.to.infn.it/cloud-init-files/header.py')
 exec (response.read())
 
 ########################
@@ -43,7 +43,7 @@ def install_cvmfs(version, rhel):
   # cvmfs and cvmfs-keys package url
   cvmfs_rpm_url = 'https://ecsft.cern.ch/dist/cvmfs/cvmfs-'+version+'/cvmfs-'+version+'-1.el'+str(rhel)+'.'+arch+'.rpm'
   logger.info('Pakcage ulr: '+cvmfs_rpm_url+'') 
-  cvmfs_keys_rpm_url = 'https://ecsft.cern.ch/dist/cvmfs/cvmfs-keys/cvmfs-keys-1.4-1.noarch.rpm'
+  cvmfs_keys_rpm_url = 'https://ecsft.cern.ch/dist/cvmfs/cvmfs-keys/cvmfs-keys-1.5-1.noarch.rpm'
   # Downloading cvmfs and cvmfs-keys.rpm file to /home path
   try:
     cmd = ('wget --no-check-certificate -O /tmp/cvmfs.rpm '+cvmfs_rpm_url+'') 

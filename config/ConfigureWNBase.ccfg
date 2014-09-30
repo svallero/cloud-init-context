@@ -83,7 +83,8 @@ igiinstall:
 
 igiyaim:
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
+  #repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
+  repo: 'http://one-master.to.infn.it/cloud-init-files/WN'
   files:
     - 'ig-groups.conf'
     - 'ig-users.conf'

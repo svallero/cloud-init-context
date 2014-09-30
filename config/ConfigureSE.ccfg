@@ -97,9 +97,11 @@ igiinstall:
 ############################################################################
 
 certificate:
-  embedfiles: 
-    - 'sensitivedata_SE/se-srm-00-16092013-cert.pem'
-    - 'sensitivedata_SE/se-srm-00-16092013-key.pem'
+  embedfiles:
+    - 'sensitivedata_SE/se-srm-00-08092014-cert.pem'
+    - 'sensitivedata_SE/se-srm-00-08092014-key.pem' 
+    #- 'sensitivedata_SE/se-srm-00-16092013-cert.pem'
+    #- 'sensitivedata_SE/se-srm-00-16092013-key.pem'
     #- 'sensitivedata_SE/t2-dom0-02-12072013-cert.pem'
     #- 'sensitivedata_SE/t2-dom0-02-12072013-key.pem'
 
@@ -135,7 +137,8 @@ certificate:
 igiyaim:
   type: 'se'
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/SE'
+  #repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/SE'
+  repo: 'http://one-master.to.infn.it/cloud-init-files/SE'
   files:
     - 'ig-groups.conf'
     - 'ig-users.conf'

@@ -36,7 +36,7 @@ echo -e "\e[32mWriting temporary list...\e[0m"
 echo "${list_modules}:x-include-url" > tmp.txt
 echo "${config_file}:multiple-config" >> tmp.txt
 echo -e "\e[32mCreating user-data archive...\e[0m"
-name=`echo $config_file | grep -o -P '(?<=Configure).*(?=.ccfg)'`
+name=`echo $config_file | grep -o -P '(?<=config/Configure).*(?=.ccfg)'`
 userdata="userdata${name}.txt.gz"
 ./WriteMIME.py tmp.txt
 ls -rtlh $userdata

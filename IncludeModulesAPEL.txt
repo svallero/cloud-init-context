@@ -1,0 +1,4 @@
+#include
+http:one-master.to.infn.it/cloud-init-files/preconfig.py
+http:one-master.to.infn.it/cloud-init-files/cc_pub_net.py
+http:one-master.to.infn.it/cloud-init-files/cc_certificate.py

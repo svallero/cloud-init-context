@@ -1,0 +1,45 @@
+#multiple-config
+# vim: syntax=yaml
+
+############################################################################
+# The order of the configuration blocks does not matter here,              #
+# but it is important that you load the custom modules (part-handlers)     #
+# in the right order                                                       #
+############################################################################
+
+### Contact: svallero@to.infn.it
+
+
+# CONFIGURE PUBLIC NETWORK #################################################
+# set the hostname and configure eth1: mac, ip, netmask and gateway.       #
+# The ip is specified in the flavour because it's needed by ON to setup    #
+# the vm in the public network.                                            #
+############################################################################
+pub_net:
+  name: 't2-apel.to.infn.it' 
+  wan_mask: '255.255.255.192'
+  gateway: '193.206.184.62'
+
+
+# ADD CERTIFICATE ##########################################################
+# The certificate and private key are always embedded in the MIME,         # 
+# either from local file or from repo (put a "+" before the file name)     #
+############################################################################
+# also set the hostname here, since it is needed by folowing modules
+# to configure things properly (i.e. torque server, maui etc...)
+
+certificate:
+  embedfiles: 
+    - 'sensitivedata_APEL/hostcert-2014.pem'
+    - 'sensitivedata_APEL/hostkey-2014.pem'
+
+
+# SUMMARY ##################################################################
+# add some additional script to be run at the end.                         # 
+# For instance the script to produce a summary logfile from the single     #
+# part-handlers logs.                                                      #
+# Comment-out if already included as x-include-url.                        #
+############################################################################
+
+afterburners:
+  - 'apel/apel-deploy.sh'

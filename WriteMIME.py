@@ -125,7 +125,7 @@ for line in fileinput.input():
    (filename, format_type) = line.split(":", 1)
    # User defined cloud-config
    if 'multiple-config' in format_type:
-      instance_type = filename[len('Configure'):-len('.ccfg')]
+      instance_type = filename[len('config/Configure'):-len('.ccfg')]
       with open(filename) as fh:
          contents = fh.read()
          # Load contents in order with custom loader

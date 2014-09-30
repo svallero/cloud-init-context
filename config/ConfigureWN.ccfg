@@ -58,7 +58,7 @@ localfs:
 
 cvmfs:
   install: true
-  version: 2.1.17
+  version: 2.1.19
   local:
     repositories: 'alice.cern.ch,atlas.cern.ch,sft.cern.ch,boss.cern.ch,belle.cern.ch,lhcb.cern.ch' 
     http-proxy: http://t2-squid-01.to.infn.it:3128
@@ -99,7 +99,12 @@ igiinstall:
     #- igi-wn_torque_noafs # this is from IGI2, deprecated
     - emi-wn
     - emi-torque-client      
-
+    - wlcg-voms-*
+    #- wlcg-voms-alice
+    #- wlcg-voms-atlas
+    #- wlcg-voms-cms
+    #- wlcg-voms-lhcb
+    #- wlcg-voms-ops
 # PREPARE AND RUN IGI-YAIM #################################################
 # (qui Grid-Prod.tar.gz sparisce ed i files sono embedded uno per uno nel  #
 #  MIME)                                                                   #  
@@ -123,7 +128,8 @@ igiinstall:
 
 igiyaim:
   yaimhome: '/opt/glite/yaim'
-  repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
+  #repo: 'http://srm-dom0.to.infn.it/CloudInitFiles/WN'
+  repo: 'http://one-master.to.infn.it/cloud-init-files/WN'
   #tarfile: 'Grid-Prod.tar.gz'
   files:
     - 'ig-groups.conf'
